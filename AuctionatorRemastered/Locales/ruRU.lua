@@ -354,4 +354,10 @@ AtrL["Canceled %d undercut auctions."] = "Отменено %d перебитых
 AtrL["Use modern Cancelling terminal (Undercuts tab)"] = "Современная вкладка отмены (вкладка Перебитые)"
 AtrL["Switch between modern terminals and the classic 2008 tabs."] = "Переключение между современными терминалами и классическими вкладками 2008 года."
 
+
+-- Crafting & Profit Tooltips
+AtrL["Crafting Cost:"] = "Себестоимость крафта:"
+AtrL["Estimated Profit:"] = "Ожидаемая прибыль:"
+AtrL["Created shopping list '%s' with %d reagents."] = "Создан список покупок '%s' с %d реагентами."
+
 end

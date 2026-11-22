@@ -953,6 +953,60 @@ hooksecurefunc (GameTooltip, "SetGuildBankItem",
 	end
 );
 
+local function AppendRecipeCraftingProfit(tip, skill)
+	if not skill or not GetTradeSkillNumReagents then
+		return
+	end
+	local numMade = (GetTradeSkillNumMade and GetTradeSkillNumMade(skill)) or 1
+	local productLink = GetTradeSkillItemLink and GetTradeSkillItemLink(skill)
+	if not productLink then
+		return
+	end
+
+	local numReagents = GetTradeSkillNumReagents(skill) or 0
+	if numReagents == 0 then
+		return
+	end
+
+	local totalReagentCost = 0
+
+	for r = 1, numReagents do
+		local rName, _, rCount = GetTradeSkillReagentInfo(skill, r)
+		if rName and rCount and rCount > 0 then
+			local rPrice = (Atr_GetAuctionPrice and Atr_GetAuctionPrice(rName)) or 0
+			if rPrice == 0 then
+				local _, _, _, _, _, _, _, _, _, _, vPrice = GetItemInfo(rName)
+				rPrice = vPrice or 0
+			end
+			if rPrice > 0 then
+				totalReagentCost = totalReagentCost + (rPrice * rCount)
+			end
+		end
+	end
+
+	local productName = GetItemInfo(productLink) or productLink:match("|h%[(.-)%]|h")
+	local productUnitPrice = (Atr_GetAuctionPrice and Atr_GetAuctionPrice(productName)) or 0
+	local productTotalValue = productUnitPrice * numMade
+
+	if productTotalValue > 0 and totalReagentCost > 0 then
+		local netRevenue = math.floor(productTotalValue * 0.95)
+		local profit = netRevenue - totalReagentCost
+		local Z = _G.ZT or function(s) return s end
+		local priceStr = function(v)
+			return (gAtrZC and gAtrZC.priceToMoneyString and gAtrZC.priceToMoneyString(v)) or tostring(v)
+		end
+
+		tip:AddLine(" ")
+		tip:AddDoubleLine(Z("Crafting Cost:"), priceStr(totalReagentCost), 0.7, 0.7, 0.7, 1, 1, 1)
+		if profit > 0 then
+			tip:AddDoubleLine(Z("Estimated Profit:"), "|cff55dd55+" .. priceStr(profit) .. "|r", 0.7, 0.7, 0.7, 1, 1, 1)
+		else
+			tip:AddDoubleLine(Z("Estimated Profit:"), "|cffff5555-" .. priceStr(-profit) .. "|r", 0.7, 0.7, 0.7, 1, 1, 1)
+		end
+		tip:Show()
+	end
+end
+
 hooksecurefunc (GameTooltip, "SetTradeSkillItem",
 	function (tip, skill, id)
 		local link = GetTradeSkillItemLink(skill);
@@ -963,6 +1017,10 @@ hooksecurefunc (GameTooltip, "SetTradeSkillItem",
 		end
 
 		Atr_ShowTipWithPricing (tip, link, num);
+
+		if not id then
+			AppendRecipeCraftingProfit (tip, skill);
+		end
 	end
 );
 

@@ -373,4 +373,10 @@ AtrL["Canceled %d undercut auctions."] = ""
 AtrL["Use modern Cancelling terminal (Undercuts tab)"] = ""
 AtrL["Switch between modern terminals and the classic 2008 tabs."] = ""
 
+
+-- Crafting & Profit Tooltips
+AtrL["Crafting Cost:"] = ""
+AtrL["Estimated Profit:"] = ""
+AtrL["Created shopping list '%s' with %d reagents."] = ""
+
 end
