@@ -30,6 +30,7 @@ Remastered\Models\ItemMetadata.lua
 Remastered\Models\SearchModifiers.lua
 Remastered\Models\BaitGuard.lua
 Remastered\Models\PriceGuard.lua
+Remastered\Models\StackSplitter.lua
 
 Legacy\zcUtils.lua
 

@@ -379,4 +379,18 @@ AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling 
 AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = "Внимание: Выкуп (%s) на %d%% ниже рыночной цены (%s)!\n\nВозможно, пропущен ноль?\n\nВы уверены, что хотите выставить лот по этой цене?"
 AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = "Внимание: Выкуп (%s) на %d%% выше рыночной цены (%s)!\n\nЭто аномальное завышение цены. Залог за аукцион сгорит, если лот не купят.\n\nВы уверены, что хотите выставить лот по этой цене?"
 
+-- Smart Bag Splitter & Auto-fill
+AtrL["Posting %d of %d items"] = "Выставление %d из %d предм."
+AtrL["%d left in bags"] = "%d ост. в сумках"
+AtrL["Posting all %d items (%d × %d)"] = "Выставление всех %d предм. (%d × %d)"
+AtrL["Posting 1 stack of %d"] = "Выставление 1 стопки из %d"
+AtrL["Posting 1 item"] = "Выставление 1 предмета"
+AtrL["No items in bags"] = "Нет предметов в сумках"
+AtrL["Posting %d of %d items (%d left in bags)"] = "Выставление %d из %d предм. (%d ост. в сумках)"
+AtrL["Stack size must be at least 1"] = "Размер стопки должен быть не менее 1"
+AtrL["Number of stacks must be at least 1"] = "Количество стопок должно быть не менее 1"
+AtrL["Stack size cannot exceed max stack (%d)"] = "Размер стопки не может превышать макс. (%d)"
+AtrL["⚠️ Need %d items, only %d in bags (missing %d)"] = "⚠️ Требуется %d предм., в сумках только %d (не хватает %d)"
+AtrL["+%d left"] = "+%d ост."
+
 end

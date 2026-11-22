@@ -347,4 +347,18 @@ AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling 
 AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = ""
 AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = ""
 
+-- Smart Bag Splitter & Auto-fill
+AtrL["Posting %d of %d items"] = ""
+AtrL["%d left in bags"] = ""
+AtrL["Posting all %d items (%d × %d)"] = ""
+AtrL["Posting 1 stack of %d"] = ""
+AtrL["Posting 1 item"] = ""
+AtrL["No items in bags"] = ""
+AtrL["Posting %d of %d items (%d left in bags)"] = ""
+AtrL["Stack size must be at least 1"] = ""
+AtrL["Number of stacks must be at least 1"] = ""
+AtrL["Stack size cannot exceed max stack (%d)"] = ""
+AtrL["⚠️ Need %d items, only %d in bags (missing %d)"] = ""
+AtrL["+%d left"] = ""
+
 end

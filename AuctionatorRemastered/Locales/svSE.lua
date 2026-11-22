@@ -379,4 +379,18 @@ AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling 
 AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = ""
 AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = ""
 
+-- Smart Bag Splitter & Auto-fill
+AtrL["Posting %d of %d items"] = "Lägger upp %d av %d föremål"
+AtrL["%d left in bags"] = "%d kvar i väskor"
+AtrL["Posting all %d items (%d × %d)"] = "Lägger upp alla %d föremål (%d × %d)"
+AtrL["Posting 1 stack of %d"] = "Lägger upp 1 trave med %d"
+AtrL["Posting 1 item"] = "Lägger upp 1 föremål"
+AtrL["No items in bags"] = "Inga föremål i väskorna"
+AtrL["Posting %d of %d items (%d left in bags)"] = "Lägger upp %d av %d föremål (%d kvar i väskor)"
+AtrL["Stack size must be at least 1"] = "Travestorlek måste vara minst 1"
+AtrL["Number of stacks must be at least 1"] = "Antal travar måste vara minst 1"
+AtrL["Stack size cannot exceed max stack (%d)"] = "Travestorlek kan inte överskrida max (%d)"
+AtrL["⚠️ Need %d items, only %d in bags (missing %d)"] = "⚠️ Behöver %d föremål, bara %d i väskor (saknas %d)"
+AtrL["+%d left"] = "+%d kvar"
+
 end

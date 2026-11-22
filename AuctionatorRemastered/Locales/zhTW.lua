@@ -398,4 +398,18 @@ AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling 
 AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = ""
 AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = ""
 
+-- Smart Bag Splitter & Auto-fill
+AtrL["Posting %d of %d items"] = "正在拍賣 %d / %d 個物品"
+AtrL["%d left in bags"] = "背包剩餘 %d"
+AtrL["Posting all %d items (%d × %d)"] = "正在拍賣全部 %d 個物品 (%d × %d)"
+AtrL["Posting 1 stack of %d"] = "正在拍賣 1 組 (%d 個)"
+AtrL["Posting 1 item"] = "正在拍賣 1 個物品"
+AtrL["No items in bags"] = "背包中沒有物品"
+AtrL["Posting %d of %d items (%d left in bags)"] = "正在拍賣 %d / %d 個物品 (背包剩餘 %d)"
+AtrL["Stack size must be at least 1"] = "堆疊大小必須至少為 1"
+AtrL["Number of stacks must be at least 1"] = "堆疊組數必須至少為 1"
+AtrL["Stack size cannot exceed max stack (%d)"] = "堆疊大小不能超過上限 (%d)"
+AtrL["⚠️ Need %d items, only %d in bags (missing %d)"] = "⚠️ 需要 %d 個物品，背包中僅有 %d 個 (缺少 %d 個)"
+AtrL["+%d left"] = "+%d 剩餘"
+
 end

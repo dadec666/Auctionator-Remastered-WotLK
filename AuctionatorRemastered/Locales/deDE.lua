@@ -416,4 +416,18 @@ AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling 
 AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = ""
 AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = ""
 
+-- Smart Bag Splitter & Auto-fill
+AtrL["Posting %d of %d items"] = "Erstelle %d von %d Gegenständen"
+AtrL["%d left in bags"] = "%d in Taschen übrig"
+AtrL["Posting all %d items (%d × %d)"] = "Erstelle alle %d Gegenstände (%d × %d)"
+AtrL["Posting 1 stack of %d"] = "Erstelle 1 Stapel von %d"
+AtrL["Posting 1 item"] = "Erstelle 1 Gegenstand"
+AtrL["No items in bags"] = "Keine Gegenstände in Taschen"
+AtrL["Posting %d of %d items (%d left in bags)"] = "Erstelle %d von %d Gegenständen (%d in Taschen übrig)"
+AtrL["Stack size must be at least 1"] = "Stapelgröße muss mindestens 1 sein"
+AtrL["Number of stacks must be at least 1"] = "Stapelanzahl muss mindestens 1 sein"
+AtrL["Stack size cannot exceed max stack (%d)"] = "Stapelgröße darf Maximalstapel (%d) nicht überschreiten"
+AtrL["⚠️ Need %d items, only %d in bags (missing %d)"] = "⚠️ Benötigt %d Gegenstände, nur %d in Taschen (fehlen %d)"
+AtrL["+%d left"] = "+%d übrig"
+
 end

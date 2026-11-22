@@ -367,4 +367,18 @@ AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling 
 AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = ""
 AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = ""
 
+-- Smart Bag Splitter & Auto-fill
+AtrL["Posting %d of %d items"] = "Poniendo %d de %d objetos"
+AtrL["%d left in bags"] = "%d en bolsas"
+AtrL["Posting all %d items (%d × %d)"] = "Poniendo los %d objetos (%d × %d)"
+AtrL["Posting 1 stack of %d"] = "Poniendo 1 montón de %d"
+AtrL["Posting 1 item"] = "Poniendo 1 objeto"
+AtrL["No items in bags"] = "No hay objetos en las bolsas"
+AtrL["Posting %d of %d items (%d left in bags)"] = "Poniendo %d de %d objetos (%d en bolsas)"
+AtrL["Stack size must be at least 1"] = "El tamaño del montón debe ser al menos 1"
+AtrL["Number of stacks must be at least 1"] = "El número de montones debe ser al menos 1"
+AtrL["Stack size cannot exceed max stack (%d)"] = "El tamaño del montón no puede exceder el máximo (%d)"
+AtrL["⚠️ Need %d items, only %d in bags (missing %d)"] = "⚠️ Se necesitan %d objetos, solo %d en bolsas (faltan %d)"
+AtrL["+%d left"] = "+%d restante"
+
 end
