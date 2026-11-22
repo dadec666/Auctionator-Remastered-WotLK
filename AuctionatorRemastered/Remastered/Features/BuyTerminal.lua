@@ -538,6 +538,13 @@ end
 -- Safe Buy Execution (Race Condition Guard & In-Place Checkout)
 -- ============================================================================
 local function ExecutePurchase()
+	if InCombatLockdown and InCombatLockdown() then
+		if Atr_Error_Display then
+			Atr_Error_Display(Z("Cannot purchase during combat."))
+		end
+		return
+	end
+
 	if not stagedItem or not selectedListing then
 		return
 	end

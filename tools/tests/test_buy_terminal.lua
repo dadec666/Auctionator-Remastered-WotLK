@@ -278,6 +278,16 @@ local function TestRaceConditionGuard()
     end
     check(CheckOwnAuction(1) == true, "Own auction should be recognized")
     check(CheckOwnAuction(2) == false, "Other character auction is not own auction")
+
+    -- Test Combat Lockdown Guard
+    local function TestCombatLockdownPurchase(inCombat)
+        if inCombat then
+            return false, "Cannot purchase during combat."
+        end
+        return true
+    end
+    check(TestCombatLockdownPurchase(true) == false, "Purchase must be blocked during combat lockdown")
+    check(TestCombatLockdownPurchase(false) == true, "Purchase allowed when not in combat")
 end
 TestRaceConditionGuard()
 

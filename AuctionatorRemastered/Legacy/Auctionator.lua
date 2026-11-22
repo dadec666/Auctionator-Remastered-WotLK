@@ -4379,6 +4379,10 @@ end
 
 function Atr_CancelAuction(x)
 
+	if (InCombatLockdown and InCombatLockdown()) then
+		return;
+	end
+
 	CancelAuction(x);
 
 end

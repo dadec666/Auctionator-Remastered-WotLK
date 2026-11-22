@@ -618,6 +618,13 @@ end
 -- Post Execution
 -- ============================================================================
 local function PostStagedAuction()
+	if InCombatLockdown and InCombatLockdown() then
+		if Atr_Error_Display then
+			Atr_Error_Display(Z("Cannot post auctions during combat."))
+		end
+		return
+	end
+
 	if not stagedItem then
 		return
 	end

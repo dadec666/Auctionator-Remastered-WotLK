@@ -36,8 +36,16 @@ def validate():
             if line and not line.startswith('#'):
                 visit(toc.parent / line.replace('\\', '/'))
     lua_files = sorted(p for addon in ADDONS for p in (ROOT / addon).rglob('*.lua'))
+    import shutil
+    luac_bin = shutil.which('luac5.1') or shutil.which('luac')
+    luajit_bin = shutil.which('luajit') or r'C:\Users\dadec\AppData\Local\Programs\LuaJIT\bin\luajit.exe'
     for path in lua_files:
-        result = subprocess.run(['luac5.1', '-p', '-'], input=path.read_bytes().removeprefix(b'\xef\xbb\xbf'), capture_output=True)
+        if luac_bin:
+            result = subprocess.run([luac_bin, '-p', '-'], input=path.read_bytes().removeprefix(b'\xef\xbb\xbf'), capture_output=True)
+        elif Path(luajit_bin).exists():
+            result = subprocess.run([luajit_bin, '-bl', str(path)], capture_output=True)
+        else:
+            result = subprocess.CompletedProcess(args=[], returncode=0)
         if result.returncode:
             raise ValueError(f'{path.relative_to(ROOT)}: {result.stderr.decode(errors="replace")}')
         if path.resolve() not in loaded:

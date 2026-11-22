@@ -108,6 +108,14 @@ check(searchedQuery == "Frostweave Cloth", "Search query forwarded correctly")
 check(API.Search("Frostweave Cloth", true) == true, "Exact search should succeed")
 check(searchedQuery == '"Frostweave Cloth"', "Exact search should wrap query in quotes")
 
+InCombatLockdown = function()
+    return true
+end
+check(API.Search("Frostweave Cloth") == false, "Search should return false if in combat lockdown")
+InCombatLockdown = function()
+    return false
+end
+
 -- =========================================================================
 -- Test 7: Money Formatting
 -- =========================================================================

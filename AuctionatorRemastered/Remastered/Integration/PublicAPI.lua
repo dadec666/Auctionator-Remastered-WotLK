@@ -92,6 +92,9 @@ function API.Search(query, exact)
     if not API.IsOpen() then
         return false
     end
+    if InCombatLockdown and InCombatLockdown() then
+        return false
+    end
 
     local text = query
     if exact and not string.find(text, '^"') then

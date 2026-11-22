@@ -350,6 +350,11 @@ function Atr_Buy_CountMatches (andBuy)
 			numMatches = numMatches + 1;
 			
 			if (andBuy and gAtr_Buy_NumUserWants > gAtr_Buy_NumBought) then
+				if (InCombatLockdown and InCombatLockdown()) then
+					Atr_Buy_Cancel (ZT("Cannot purchase during combat."));
+					break;
+				end
+
 				local playerMoney = (GetMoney and GetMoney()) or 0;
 				if (playerMoney < gAtr_Buy_BuyoutPrice) then
 					Atr_Buy_Cancel (ZT("You do not have enough gold\n\nto make any more purchases."));
