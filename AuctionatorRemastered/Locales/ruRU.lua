@@ -302,4 +302,17 @@ AtrL["Per Stack"] = "За стопку"
 AtrL["Per Item"] = "За шт"
 AtrL["Seller"] = "Продавец"
 
+-- Modern Buy Terminal
+AtrL["Use modern Buy terminal (3-column layout)"] = "Современная вкладка покупки (3-колоночный терминал)"
+AtrL["Switch between modern 3-column terminals and the classic 2008 tabs."] = "Переключение между современными 3-колоночными терминалами и классическими вкладками 2008 года."
+AtrL["Available on AH: %d"] = "Доступно на аукционе: %d шт"
+AtrL["Total to Pay:"] = "Итого к оплате:"
+AtrL["Your Balance:"] = "Ваш баланс:"
+AtrL["Not enough gold"] = "Недостаточно золота"
+AtrL["Balance after:"] = "Остаток после:"
+AtrL["BUY %d FOR %s"] = "ВЫКУПИТЬ %d ШТ ЗА %s"
+AtrL["Select an item from the left sidebar to start buying"] = "Выберите предмет из списка слева для покупки"
+AtrL["Buy All"] = "Купить всё"
+AtrL["Item"] = "Предмет"
+
 end

@@ -69,6 +69,9 @@ function AuctionatorRemastered.UI.SetupAppearance(mover,positionDetails,settings
         if Atr_ModernSellToggle then
             Atr_ModernSellToggle:SetChecked(AUCTIONATOR_SAVEDVARS.modernSell~=false)
         end
+        if Atr_ModernBuyToggle then
+            Atr_ModernBuyToggle:SetChecked(AUCTIONATOR_SAVEDVARS.modernBuy~=false)
+        end
     end)
     text(Z('Drag the auction title to move AH. Drag Deal details to detach it from AH.'),20,-122,'GameFontHighlightSmall',550,24)
 
@@ -82,17 +85,28 @@ function AuctionatorRemastered.UI.SetupAppearance(mover,positionDetails,settings
             Atr_UpdateSellTabVisibility()
         end
     end)
-    text(Z('Switch between the modern 3-column terminal and the classic 2008 Sell tab.'),20,-180,'GameFontHighlightSmall',550,24)
+
+    local modernBuyChoice=CreateFrame('CheckButton','Atr_ModernBuyToggle',appearance,'UICheckButtonTemplate')
+    Atr_AnalysisSkin(modernBuyChoice,'CheckBox');modernBuyChoice:SetSize(24,24);modernBuyChoice:SetPoint('TOPLEFT',appearance,'TOPLEFT',16,-180)
+    _G[modernBuyChoice:GetName()..'Text']:SetText(Z('Use modern Buy terminal (3-column layout)'))
+    modernBuyChoice:SetScript('OnClick',function(self)
+        local enabled=self:GetChecked() and true or false
+        AUCTIONATOR_SAVEDVARS.modernBuy=enabled
+        if Atr_UpdateBuyTabVisibility then
+            Atr_UpdateBuyTabVisibility()
+        end
+    end)
+    text(Z('Switch between modern 3-column terminals and the classic 2008 tabs.'),20,-210,'GameFontHighlightSmall',550,24)
 
     local function button(name,label,y,callback)
         local b=CreateFrame('Button',name,appearance,'UIPanelButtonTemplate')
         Atr_AnalysisSkin(b,'Button');b:SetSize(200,24);b:SetPoint('TOPLEFT',appearance,'TOPLEFT',20,y)
         b:SetText(label);b:SetScript('OnClick',callback)
     end
-    button('Atr_ResetAuctionPosition',Z('Reset auction window'),-215,resetAuctionPosition)
-    button('Atr_ResetDetailsPosition',Z('Reset Deal details'),-255,resetDetailsPosition)
-    text(Z('Reset Deal details places it beside AH and makes it follow the auction window again.'),236,-255,'GameFontHighlightSmall',310,42)
-    text('Changes apply immediately. Shopping lists, prices and scan data are kept.',20,-315,'GameFontDisableSmall',550,30)
+    button('Atr_ResetAuctionPosition',Z('Reset auction window'),-245,resetAuctionPosition)
+    button('Atr_ResetDetailsPosition',Z('Reset Deal details'),-285,resetDetailsPosition)
+    text(Z('Reset Deal details places it beside AH and makes it follow the auction window again.'),236,-285,'GameFontHighlightSmall',310,42)
+    text('Changes apply immediately. Shopping lists, prices and scan data are kept.',20,-345,'GameFontDisableSmall',550,30)
     if InterfaceOptions_AddCategory then InterfaceOptions_AddCategory(appearance) end
     appearance:Hide()
 end

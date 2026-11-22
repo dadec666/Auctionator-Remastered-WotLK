@@ -270,4 +270,17 @@ AtrL["Per Stack"] = ""
 AtrL["Per Item"] = ""
 AtrL["Seller"] = ""
 
+-- Modern Buy Terminal
+AtrL["Use modern Buy terminal (3-column layout)"] = ""
+AtrL["Switch between modern 3-column terminals and the classic 2008 tabs."] = ""
+AtrL["Available on AH: %d"] = ""
+AtrL["Total to Pay:"] = ""
+AtrL["Your Balance:"] = ""
+AtrL["Not enough gold"] = ""
+AtrL["Balance after:"] = ""
+AtrL["BUY %d FOR %s"] = ""
+AtrL["Select an item from the left sidebar to start buying"] = ""
+AtrL["Buy All"] = ""
+AtrL["Item"] = ""
+
 end
