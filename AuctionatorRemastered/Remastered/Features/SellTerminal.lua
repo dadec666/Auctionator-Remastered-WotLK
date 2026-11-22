@@ -356,7 +356,22 @@ local function UpdateStagedPricingCards()
 		end
 	end
 	if refLowVal then
-		refLowVal:SetText(lowestBuyout and money(lowestBuyout) or "|cff888888--|r")
+		if lowestBuyout then
+			local BG = AuctionatorRemastered and AuctionatorRemastered.Models and AuctionatorRemastered.Models.BaitGuard
+			local isBait, diffPct = false, 0
+			if BG and BG.IsEnabled and BG.IsEnabled() and marketRef > 0 then
+				isBait, diffPct = BG.IsBaitPrice(lowestBuyout, marketRef)
+			end
+			if isBait then
+				refLowVal:SetText(
+					string.format("%s |cffff9900(⚠️ -%d%%)|r", money(lowestBuyout), math.abs(math.floor(diffPct)))
+				)
+			else
+				refLowVal:SetText(money(lowestBuyout))
+			end
+		else
+			refLowVal:SetText("|cff888888--|r")
+		end
 	end
 end
 
@@ -459,9 +474,11 @@ local function ApplyQuickPrice(mode)
 
 	local targetPrice = 0
 	local lowestBuyout = nil
+	local list = {}
 	if gSellPane and gSellPane.activeScan and gSellPane.activeScan.sortedData then
 		for _, entry in ipairs(gSellPane.activeScan.sortedData) do
 			if entry.type == "n" and (entry.buyoutPrice or 0) > 0 then
+				list[#list + 1] = entry
 				local unitBuyout = entry.buyoutPrice / math.max(1, entry.stackSize or 1)
 				if not lowestBuyout or unitBuyout < lowestBuyout then
 					lowestBuyout = unitBuyout
@@ -474,8 +491,19 @@ local function ApplyQuickPrice(mode)
 		or (Atr_GetAuctionPrice and Atr_GetAuctionPrice(stagedItem.name))
 		or 0
 
+	local BG = AuctionatorRemastered and AuctionatorRemastered.Models and AuctionatorRemastered.Models.BaitGuard
+
 	if mode == "undercut" then
-		if lowestBuyout and lowestBuyout > 1 then
+		if BG and BG.IsEnabled and BG.IsEnabled() then
+			local smartPrice, isBaitAvoided = BG.GetSmartUndercutPrice(list, marketRef, stagedItem.vendorPrice)
+			targetPrice = smartPrice
+			if isBaitAvoided and DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
+				DEFAULT_CHAT_FRAME:AddMessage(
+					"|cffffaa00[Auctionator]|r "
+						.. Z("Bait price detected! Undercutting legitimate market price instead.")
+				)
+			end
+		elseif lowestBuyout and lowestBuyout > 1 then
 			targetPrice = lowestBuyout - 1
 		elseif marketRef > 1 then
 			targetPrice = marketRef - 1
@@ -570,6 +598,19 @@ function Atr_RenderCompetitors()
 		local lowestComp = list[1]
 		local lowestUnit = lowestComp and (lowestComp.buyoutPrice / math.max(1, lowestComp.stackSize or 1))
 
+		local marketRef = (
+			stagedItem
+			and (
+				(Atr_MarketReference and Atr_MarketReference(stagedItem.name))
+				or (Atr_GetAuctionPrice and Atr_GetAuctionPrice(stagedItem.name))
+			)
+		) or 0
+		local BG = AuctionatorRemastered and AuctionatorRemastered.Models and AuctionatorRemastered.Models.BaitGuard
+		local isLowestBait, lowestDiff = false, 0
+		if BG and BG.IsEnabled and BG.IsEnabled() and marketRef > 0 and lowestUnit then
+			isLowestBait, lowestDiff = BG.IsBaitPrice(lowestUnit, marketRef)
+		end
+
 		if lowestComp and lowestComp.yours then
 			playerLowest = true
 		elseif lowestUnit and currentBuyout > lowestUnit then
@@ -577,7 +618,14 @@ function Atr_RenderCompetitors()
 		end
 
 		if compStatusBadge then
-			if playerLowest or (lowestUnit and currentBuyout <= lowestUnit) then
+			if isLowestBait then
+				compStatusBadge:SetText(
+					string.format(
+						"|cffff9900⚠️ " .. Z("Abnormal Low Price (-%d%%)") .. "|r",
+						math.abs(math.floor(lowestDiff))
+					)
+				)
+			elseif playerLowest or (lowestUnit and currentBuyout <= lowestUnit) then
 				compStatusBadge:SetText("|cff55dd55● " .. Z("Lowest Price!") .. "|r")
 			elseif undercut then
 				compStatusBadge:SetText("|cffffaa55● " .. Z("You are undercut!") .. "|r")
@@ -592,13 +640,35 @@ function Atr_RenderCompetitors()
 	FauxScrollFrame_Update(competitorsScroll, numRecords, visibleRows, 26)
 
 	local offset = FauxScrollFrame_GetOffset(competitorsScroll)
+	local currentMarketRef = (
+		stagedItem
+		and (
+			(Atr_MarketReference and Atr_MarketReference(stagedItem.name))
+			or (Atr_GetAuctionPrice and Atr_GetAuctionPrice(stagedItem.name))
+		)
+	) or 0
+	local BG = AuctionatorRemastered and AuctionatorRemastered.Models and AuctionatorRemastered.Models.BaitGuard
+
 	for i, row in ipairs(compRows) do
 		local index = offset + i
 		local data = list[index]
 		row.data = data
 		if data and index <= numRecords then
 			local unitPrice = data.buyoutPrice / math.max(1, data.stackSize or 1)
-			row.priceText:SetText(money(unitPrice))
+			local isRowBait, rowDiff = false, 0
+			if BG and BG.IsEnabled and BG.IsEnabled() and currentMarketRef > 0 then
+				isRowBait, rowDiff = BG.IsBaitPrice(unitPrice, currentMarketRef)
+			end
+
+			row.isBait = isRowBait
+			row.baitDiff = rowDiff
+			row.marketRef = currentMarketRef
+
+			if isRowBait then
+				row.priceText:SetText("|cffffaa00⚠️ " .. money(unitPrice) .. "|r")
+			else
+				row.priceText:SetText(money(unitPrice))
+			end
 			row.stacksText:SetText(string.format("%d × %d", data.count or 1, data.stackSize or 1))
 
 			local seller = data.owner or "Unknown"
@@ -610,6 +680,8 @@ function Atr_RenderCompetitors()
 		else
 			row:Hide()
 			row.data = nil
+			row.isBait = nil
+			row.baitDiff = nil
 		end
 	end
 end
@@ -1118,6 +1190,21 @@ local function MakeSellTerminal()
 		row:SetScript("OnEnter", function(self)
 			if self.data then
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+				if self.isBait then
+					GameTooltip:AddLine(Z("⚠️ Bait / Sniper trap warning"), 1, 0.5, 0)
+					GameTooltip:AddLine(
+						string.format(
+							Z("%d%% below market reference (%s)"),
+							math.abs(math.floor(self.baitDiff or 0)),
+							money(self.marketRef or 0)
+						),
+						1,
+						0.82,
+						0,
+						true
+					)
+					GameTooltip:AddLine(" ")
+				end
 				GameTooltip:AddLine(Z("Click to match price"), 1, 0.82, 0)
 				GameTooltip:AddDoubleLine(Z("Buyout Price"), money(self.data.buyoutPrice or 0), 1, 1, 1)
 				GameTooltip:Show()

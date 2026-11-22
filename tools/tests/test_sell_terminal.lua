@@ -1,5 +1,6 @@
 dofile("AuctionatorRemastered/Remastered/Core/Bootstrap.lua")
 dofile("AuctionatorRemastered/Remastered/Integration/LegacyBridge.lua")
+dofile("AuctionatorRemastered/Remastered/Models/BaitGuard.lua")
 
 local checks = 0
 local function check(v, msg)
@@ -336,5 +337,34 @@ local function TestSettingsToggle()
 	check((AUCTIONATOR_SAVEDVARS.modernSell ~= false) == false, "Modern sell should be disabled when false")
 end
 TestSettingsToggle()
+
+-- =========================================================================
+-- Test 7: Bait Guard Integration in Sell Terminal
+-- =========================================================================
+local function TestBaitGuardIntegration()
+	local BG = AuctionatorRemastered.Models.BaitGuard
+	check(BG ~= nil, "BaitGuard model should be loaded")
+
+	local marketPrice = 1000000 -- 100g
+	local vendorPrice = 5000 -- 50s
+	local competitors = {
+		{ type = "n", buyoutPrice = 100, stackSize = 1, owner = "Sniper" }, -- 1 silver (Bait)
+		{ type = "n", buyoutPrice = 950000, stackSize = 1, owner = "HonestSeller" }, -- 95 gold (Legit)
+	}
+
+	-- When Bait Guard is active (default), it avoids the 1 silver trap
+	local smartPrice, avoided, ref = BG.GetSmartUndercutPrice(competitors, marketPrice, vendorPrice)
+	check(avoided == true, "Should report bait price avoided")
+	check(smartPrice == 949999, "Should undercut honest seller at 94g 99s 99c instead of 99 copper")
+	check(ref == 950000, "Reference price should be 95g")
+
+	-- Analysis summary check
+	local summary = BG.AnalyzeCompetitors(competitors, marketPrice)
+	check(summary.hasBait == true, "Summary should detect bait")
+	check(summary.baitCount == 1, "Summary should count 1 bait")
+	check(summary.lowestBait == 100, "Lowest bait should be 100c")
+	check(summary.lowestNormal == 950000, "Lowest normal should be 950,000c")
+end
+TestBaitGuardIntegration()
 
 print(string.format("PASS: %d SellTerminal unit tests passed successfully", checks))

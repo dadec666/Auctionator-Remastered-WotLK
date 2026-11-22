@@ -325,4 +325,11 @@ AtrL["Your own auction"] = "Ваш собственный аукцион"
 AtrL["Cannot purchase during combat."] = "Нельзя совершать покупки во время боя"
 AtrL["Cannot post auctions during combat."] = "Нельзя создавать аукционы во время боя"
 
+-- Bait / Sniper Trap Guard
+AtrL["Abnormal Low Price (-%d%%)"] = "Аномальный демпинг (-%d%%)"
+AtrL["⚠️ Bait / Sniper trap warning"] = "⚠️ Ловушка снайпера / Аномальный демпинг"
+AtrL["%d%% below market reference (%s)"] = "На %d%% ниже рыночной цены (%s)"
+AtrL["Bait price detected! Undercutting legitimate market price instead."] = "Обнаружен аномальный демпинг! Выставлена цена относительно реального рынка."
+AtrL["Enable Bait / Sniper trap protection (ignore extreme undercuts)"] = "Защита от ловушек снайперов (игнорировать фиктивный демпинг)"
+
 end

@@ -74,9 +74,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     validate()
     if args.tests:
+        import shutil
+        lua_runner = shutil.which('lua5.1') or shutil.which('lua') or shutil.which('luajit') or r'C:\Users\dadec\AppData\Local\Programs\LuaJIT\bin\luajit.exe'
         tests = sorted((ROOT / 'tools' / 'tests').glob('test_*.lua'))
         for test in tests:
-            subprocess.run(['lua5.1', str(test.relative_to(ROOT))], cwd=ROOT, check=True)
+            subprocess.run([lua_runner, str(test.relative_to(ROOT))], cwd=ROOT, check=True)
         for script in ('test_item_base_builder.py',):
             subprocess.run([sys.executable, 'tools/tests/'+script], cwd=ROOT, check=True)
         print(f'PASS: all {len(tests)} regression scripts')

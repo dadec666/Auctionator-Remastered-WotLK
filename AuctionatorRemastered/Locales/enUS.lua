@@ -293,4 +293,11 @@ AtrL["Your own auction"] = ""
 AtrL["Cannot purchase during combat."] = ""
 AtrL["Cannot post auctions during combat."] = ""
 
+-- Bait / Sniper Trap Guard
+AtrL["Abnormal Low Price (-%d%%)"] = ""
+AtrL["⚠️ Bait / Sniper trap warning"] = ""
+AtrL["%d%% below market reference (%s)"] = ""
+AtrL["Bait price detected! Undercutting legitimate market price instead."] = ""
+AtrL["Enable Bait / Sniper trap protection (ignore extreme undercuts)"] = ""
+
 end
