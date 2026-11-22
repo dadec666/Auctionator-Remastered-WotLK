@@ -150,7 +150,9 @@ end
 function Atr_FilterBuySidebar()
 	filteredSidebarItems = {}
 	local search = searchBox and searchBox:GetText() or ""
-	search = string.lower(string.trim and string.trim(search) or search)
+	local parsed = Atr_ParseSearchModifiers and Atr_ParseSearchModifiers(search)
+	local query = parsed and parsed.cleanSearchText or search
+	query = string.lower(string.trim and string.trim(query) or query)
 
 	for _, item in ipairs(sidebarItems) do
 		local matchesCategory = true
@@ -163,8 +165,22 @@ function Atr_FilterBuySidebar()
 		end
 
 		local matchesSearch = true
-		if search ~= "" then
-			matchesSearch = string.find(string.lower(item.name), search, 1, true) ~= nil
+		if query ~= "" then
+			if parsed and parsed.exact then
+				matchesSearch = (string.lower(item.name) == query)
+			else
+				matchesSearch = string.find(string.lower(item.name), query, 1, true) ~= nil
+			end
+		end
+
+		if parsed and parsed.quality and item.quality and item.quality ~= parsed.quality then
+			matchesSearch = false
+		end
+		if parsed and parsed.minItemLevel and item.ilvl and item.ilvl < parsed.minItemLevel then
+			matchesSearch = false
+		end
+		if parsed and parsed.maxItemLevel and item.ilvl and item.ilvl > parsed.maxItemLevel then
+			matchesSearch = false
 		end
 
 		if matchesCategory and matchesSearch then
@@ -239,6 +255,10 @@ local function TriggerBuySearch(text)
 	LoadSidebarItems()
 end
 
+function Atr_TriggerBuySearch(text)
+	TriggerBuySearch(text)
+end
+
 -- ============================================================================
 -- Column 2: Staging & Checkout Logic
 -- ============================================================================
@@ -264,6 +284,23 @@ local function RecalculateCart()
 		if buyBtn then
 			buyBtn:Disable()
 			buyBtn:SetText(Z("Create Auction") and Z("Buy") or "Buy")
+		end
+		return
+	end
+
+	if selectedListing.yours then
+		if unitPriceVal then
+			unitPriceVal:SetText(money(selectedListing.unitPrice or math.floor(selectedListing.buyoutPrice / selectedListing.stackSize)))
+		end
+		if totalCostVal then
+			totalCostVal:SetText("--")
+		end
+		if balanceStatus then
+			balanceStatus:SetText("|cffffcc00" .. Z("Your own auction") .. "|r")
+		end
+		if buyBtn then
+			buyBtn:Disable()
+			buyBtn:SetText(Z("Own Auction"))
 		end
 		return
 	end
@@ -505,8 +542,25 @@ local function ExecutePurchase()
 		return
 	end
 
+	if selectedListing.yours then
+		if Atr_Error_Display then
+			Atr_Error_Display(Z("Cannot buy your own auction"))
+		end
+		return
+	end
+
 	local numToBuy = GetSelectedQuantity()
 	local numStacks = math.max(1, math.floor(numToBuy / math.max(1, selectedListing.stackSize or 1)))
+	local unitCost = selectedListing.unitPrice or math.floor((selectedListing.buyoutPrice or 0) / math.max(1, selectedListing.stackSize or 1))
+	local totalCost = unitCost * numToBuy
+	local myMoney = (GetMoney and GetMoney()) or 0
+
+	if totalCost > myMoney then
+		if Atr_Error_Display then
+			Atr_Error_Display(Z("You do not have enough gold\n\nto make any more purchases."))
+		end
+		return
+	end
 
 	-- Setup legacy Auctionator buy engine
 	if gShopPane then

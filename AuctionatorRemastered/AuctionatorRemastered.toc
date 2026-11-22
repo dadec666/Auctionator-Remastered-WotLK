@@ -27,6 +27,7 @@ Remastered\Integration\LegacyBridge.lua
 Remastered\Models\ItemIdentity.lua
 Remastered\Models\Database.lua
 Remastered\Models\ItemMetadata.lua
+Remastered\Models\SearchModifiers.lua
 
 Legacy\zcUtils.lua
 
@@ -83,5 +84,6 @@ Remastered\Integration\BrowserMetadata.lua
 Remastered\Features\ShoppingPlanner.lua
 Remastered\Integration\AFKGuard.lua
 Remastered\Features\PriceChart.lua
+Remastered\Integration\PublicAPI.lua
 
 Legacy\AuctionatorTradeSkill.lua

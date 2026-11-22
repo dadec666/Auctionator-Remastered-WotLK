@@ -4357,11 +4357,17 @@ end
 
 -----------------------------------------
 
-function Atr_DoesAuctionMatch (list, i, name, buyout, stacksize)
+function Atr_DoesAuctionMatch (list, i, name, buyout, stacksize, expectedLink)
 
 	local aname, _, astacksize, _, _, _, _, _, abuyout = GetAuctionItemInfo (list, i);
 
 	if (aname and aname == name and abuyout == buyout and astacksize == stacksize) then
+		if (expectedLink and GetAuctionItemLink and zc and zc.ItemIDStrfromLink) then
+			local alink = GetAuctionItemLink(list, i);
+			if (alink and (zc.ItemIDStrfromLink(alink) ~= zc.ItemIDStrfromLink(expectedLink))) then
+				return false;
+			end
+		end
 		return true;
 	end
 	

@@ -328,17 +328,34 @@ function Atr_Buy_CountMatches (andBuy)
 
 	while (true) do
 	
-		local name, _, count, _, _, _, _, _, buyoutPrice = GetAuctionItemInfo ("list", i);
+		local name, _, count, _, _, _, _, _, buyoutPrice, _, _, owner = GetAuctionItemInfo ("list", i);
 
 		if (name == nil) then
 			break;
 		end
 
-		if (zc.StringSame (name, gAtr_Buy_ItemName) and buyoutPrice == gAtr_Buy_BuyoutPrice and count == gAtr_Buy_StackSize) then
+		local itemLink = GetAuctionItemLink and GetAuctionItemLink("list", i);
+		local linkMatches = true;
+		if (gAtr_Buy_ItemLink and itemLink and zc and zc.ItemIDStrfromLink) then
+			linkMatches = (zc.ItemIDStrfromLink(itemLink) == zc.ItemIDStrfromLink(gAtr_Buy_ItemLink));
+		end
+
+		local isOwnAuction = false;
+		if (owner and UnitName) then
+			isOwnAuction = (owner == UnitName("player"));
+		end
+
+		if (zc.StringSame (name, gAtr_Buy_ItemName) and buyoutPrice == gAtr_Buy_BuyoutPrice and count == gAtr_Buy_StackSize and (buyoutPrice or 0) > 0 and (count or 0) > 0 and linkMatches and not isOwnAuction) then
 			
 			numMatches = numMatches + 1;
 			
 			if (andBuy and gAtr_Buy_NumUserWants > gAtr_Buy_NumBought) then
+				local playerMoney = (GetMoney and GetMoney()) or 0;
+				if (playerMoney < gAtr_Buy_BuyoutPrice) then
+					Atr_Buy_Cancel (ZT("You do not have enough gold\n\nto make any more purchases."));
+					break;
+				end
+
 				PlaceAuctionBid("list", i, gAtr_Buy_BuyoutPrice);
 				
 				numBoughtThisPage  = numBoughtThisPage + 1;
@@ -383,7 +400,7 @@ function Atr_Buy_BuildMatchList ()
 
 	for i = 1,numInList do
 	
-		if (Atr_DoesAuctionMatch ("list", i, gAtr_Buy_ItemName, gAtr_Buy_BuyoutPrice, gAtr_Buy_StackSize)) then
+		if (Atr_DoesAuctionMatch ("list", i, gAtr_Buy_ItemName, gAtr_Buy_BuyoutPrice, gAtr_Buy_StackSize, gAtr_Buy_ItemLink)) then
 			gAtr_Buy_MatchList[x] = i;
 			x = x + 1;
 		end

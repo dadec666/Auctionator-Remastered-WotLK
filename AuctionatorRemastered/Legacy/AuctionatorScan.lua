@@ -95,7 +95,13 @@ function AtrSearch:Init (searchText, IDstring, itemLink, rescanThreshold)
 	self.shplist			= Atr_GetShoppingListFromSearchText (self.searchText)
 
 	if (Atr_IsCompoundSearch(self.searchText)) then
-		_, _, _, _, _, self.minItemLevel, self.maxItemLevel = Atr_ParseCompoundSearch (self.searchText);
+		local cQuery, _, _, _, _, minIL, maxIL, _, maxP, isExact = Atr_ParseCompoundSearch (self.searchText);
+		self.minItemLevel = minIL;
+		self.maxItemLevel = maxIL;
+		self.maxUnitPrice = maxP;
+		if (isExact and cQuery ~= "") then
+			self.exactMatchText = cQuery;
+		end
 	end
 	
 	if (IDstring) then	
@@ -464,6 +470,9 @@ function AtrSearch:AnalyzeResultsPage()
 
 						if (self.items[IDstring] == nil) then
 							self.items[IDstring] = Atr_FindScanAndInit (IDstring, name)
+							if (self.maxUnitPrice) then
+								self.items[IDstring].maxUnitPrice = self.maxUnitPrice;
+							end
 						end
 						
 						local curpage = (tonumber(self.current_page)-1)
@@ -602,12 +611,29 @@ end
 -----------------------------------------
 
 local function toItemLevel (s)		-- returns nil if not of the form i72 or i277, etc
-
+	if (not s or s == "") then return nil; end
+	local sLower = string.lower(s);
+	if (string.find(sLower, "^ilvl=")) then
+		local val = string.sub(sLower, 6);
+		local minL, maxL = string.match(val, "(%d+)%s*%-%s*(%d+)");
+		if (minL and maxL) then
+			return tonumber(minL), tonumber(maxL);
+		end
+		local single = string.match(val, "(%d+)");
+		if (single) then
+			return tonumber(single), nil;
+		end
+	end
 	if (string.len(s) > 1 and string.sub(s,1,1) == "i") then
-		return tonumber (string.sub(s,2))
+		local val = string.sub(s, 2);
+		local minL, maxL = string.match(val, "(%d+)%s*%-%s*(%d+)");
+		if (minL and maxL) then
+			return tonumber(minL), tonumber(maxL);
+		end
+		return tonumber (val), nil;
 	end
 	
-	return nil
+	return nil;
 end
 
 -----------------------------------------
@@ -631,15 +657,38 @@ function Atr_ParseCompoundSearch (searchString)
 	local maxItemLevel	= nil;
 	local prevWasItemClass;
 	local qualityIndex;
+	local maxPrice		= nil;
+	local exactMatch	= false;
 	local n;
 	
 	for n = 1,#tbl do
 		local s = tbl[n];
+		if (s) then
+			s = (string.gsub(s, "^%s*(.-)%s*$", "%1"));
+		end
 		local handled = false;
 	
-		if (n == 1) then		
-			qualityIndex = Atr_ItemRariryText2QualityIndex(s)
-			if (qualityIndex ~= nil) then handled = true end
+		if (not handled) then		
+			local q = Atr_ItemRariryText2QualityIndex(s);
+			if (q ~= nil) then
+				qualityIndex = q;
+				handled = true;
+			end
+		end
+
+		if (not handled) then
+			local sLower = string.lower(s);
+			if (sLower == "exact" or sLower == "e") then
+				exactMatch = true;
+				handled = true;
+			elseif (string.find(sLower, "^max=")) then
+				local priceStr = string.sub(s, 5);
+				local copper = Atr_ParseMoneyString and Atr_ParseMoneyString(priceStr);
+				if (copper) then
+					maxPrice = copper;
+					handled = true;
+				end
+			end
 		end
 	
 		if (not handled and tonumber(s)) then
@@ -653,11 +702,15 @@ function Atr_ParseCompoundSearch (searchString)
 			prevWasItemClass = false;
 		end
 	
-		if (not handled and toItemLevel(s)) then
+		local minIL, maxIL = toItemLevel(s);
+		if (not handled and minIL) then
 			if (minItemLevel == nil) then
-				minItemLevel = toItemLevel(s);
+				minItemLevel = minIL;
+				if (maxIL) then
+					maxItemLevel = maxIL;
+				end
 			elseif (maxItemLevel == nil) then
-				maxItemLevel = toItemLevel(s);
+				maxItemLevel = minIL;
 			end
 			
 			handled = true;
@@ -682,29 +735,42 @@ function Atr_ParseCompoundSearch (searchString)
 			end
 		end
 		
-		if (not handled) then
-			queryString = s;
+		if (not handled and s ~= "") then
+			if (queryString == "") then
+				queryString = s;
+			end
 			handled = true;
 		end
 	end	
 
 	--QueryAuctionItems("name", minLevel, maxLevel, invTypeIndex, classIndex, subclassIndex, page, isUsable, qualityIndex, getAll)
-	return queryString, itemClass, itemSubclass, minLevel, maxLevel, minItemLevel, maxItemLevel, qualityIndex
+	return queryString, itemClass, itemSubclass, minLevel, maxLevel, minItemLevel, maxItemLevel, qualityIndex, maxPrice, exactMatch;
 end
 
 -----------------------------------------
 
 function Atr_ItemRariryText2QualityIndex(itemRarity)
+	if (not itemRarity or itemRarity == "") then
+		return nil;
+	end
 
-	local Rarity2Quality = {[0] = "Poor", [1] = "Common", [2] = "Uncommon",[3] = "Rare", [4] = "Epic"}
+	local s = string.lower(itemRarity);
+	s = string.gsub(s, "^q=", "");
+	s = string.gsub(s, "^quality=", "");
+
+	local num = tonumber(s);
+	if (num and num >= 0 and num <= 4) then
+		return num;
+	end
+
+	local Rarity2Quality = {[0] = "poor", [1] = "common", [2] = "uncommon", [3] = "rare", [4] = "epic"};
 	for RarityIndex, RariryString in pairs(Rarity2Quality) do
-		if (zc.StringSame (RariryString, itemRarity)) then
-			return RarityIndex
+		if (RariryString == s) then
+			return RarityIndex;
 		end
 	end
-	
-	return nil
 
+	return nil;
 end
 
 -----------------------------------------
@@ -999,42 +1065,45 @@ function AtrScan:CondenseAndSort ()
 
 	for i,sd in ipairs (self.scanData) do
 
-		local ownerCode = "x";
-		local dataType  = "n";		-- normal
-		
-		if (sd.owner == UnitName("player")) then
-			ownerCode = "y";
---		elseif (Atr_IsMyToon (sd.owner)) then
---			ownerCode = sd.owner;
-		end
-
-		local key = "_"..sd.stackSize.."_"..sd.buyoutPrice.."_"..ownerCode..dataType;
-
-		if (conddata[key]) then
-			conddata[key].count		= conddata[key].count + 1;
-			conddata[key].minpage 	= zc.Min (conddata[key].minpage, sd.pagenum);
-			conddata[key].maxpage 	= zc.Max (conddata[key].maxpage, sd.pagenum);
-		else
-			local data = {};
-
-			data.stackSize 		= sd.stackSize;
-			data.buyoutPrice	= sd.buyoutPrice;
-			data.itemPrice		= sd.buyoutPrice / sd.stackSize;
-			data.minpage		= sd.pagenum;
-			data.maxpage		= sd.pagenum;
-			data.count			= 1;
-			data.type			= dataType;
-			data.yours			= (ownerCode == "y");
+		local uPrice = sd.buyoutPrice / math.max(1, sd.stackSize);
+		if not (self.maxUnitPrice and self.maxUnitPrice > 0 and uPrice > self.maxUnitPrice) then
+			local ownerCode = "x";
+			local dataType  = "n";		-- normal
 			
-			if (ownerCode ~= "x" and ownerCode ~= "y") then
-				data.altname = ownerCode;
+			if (sd.owner == UnitName("player")) then
+				ownerCode = "y";
+	--		elseif (Atr_IsMyToon (sd.owner)) then
+	--			ownerCode = sd.owner;
 			end
-			
-			if (sd.volume) then
-				data.volume = sd.volume;
+
+			local key = "_"..sd.stackSize.."_"..sd.buyoutPrice.."_"..ownerCode..dataType;
+
+			if (conddata[key]) then
+				conddata[key].count		= conddata[key].count + 1;
+				conddata[key].minpage 	= zc.Min (conddata[key].minpage, sd.pagenum);
+				conddata[key].maxpage 	= zc.Max (conddata[key].maxpage, sd.pagenum);
+			else
+				local data = {};
+
+				data.stackSize 		= sd.stackSize;
+				data.buyoutPrice	= sd.buyoutPrice;
+				data.itemPrice		= sd.buyoutPrice / sd.stackSize;
+				data.minpage		= sd.pagenum;
+				data.maxpage		= sd.pagenum;
+				data.count			= 1;
+				data.type			= dataType;
+				data.yours			= (ownerCode == "y");
+				
+				if (ownerCode ~= "x" and ownerCode ~= "y") then
+					data.altname = ownerCode;
+				end
+				
+				if (sd.volume) then
+					data.volume = sd.volume;
+				end
+				
+				conddata[key] = data;
 			end
-			
-			conddata[key] = data;
 		end
 
 	end
