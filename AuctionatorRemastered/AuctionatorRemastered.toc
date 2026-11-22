@@ -2,6 +2,7 @@
 ## Title: Auctionator Remastered - Main module
 ## LoadOnDemand: 1
 ## Dependencies: AuctionatorRemastered_Startup
+## OptionalDeps: ElvUI, DragonUI
 ## X-AuctionatorRemastered-Component: Engine
 ## Version: 0.9.0-beta.2
 ## Author: Nisho (Remastered), Zirco (original)
@@ -54,6 +55,7 @@ Legacy\AuctionatorConfig.xml
 Remastered\Models\Sellers.lua
 Remastered\Integration\AuctionDetails.lua
 Remastered\Integration\ElvUI.lua
+Remastered\Integration\DragonUI.lua
 Remastered\Models\MarketHistory.lua
 Remastered\Integration\MarketHistory.lua
 Remastered\Integration\Database.lua
