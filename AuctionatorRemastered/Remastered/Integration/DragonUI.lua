@@ -5,6 +5,12 @@ local function isDragonUILoaded()
     return type(_G.DragonUI) == "table" and type(_G.DragonUI.ForeverUI) == "table"
 end
 
+local function safeCall(fn, ...)
+    if type(fn) == "function" then
+        return pcall(fn, ...)
+    end
+end
+
 local skinnedButtons = setmetatable({}, { __mode = "k" })
 local skinnedTabs = setmetatable({}, { __mode = "k" })
 local skinnedInputs = setmetatable({}, { __mode = "k" })
@@ -46,7 +52,7 @@ local function skinDragonUIButtons()
     for _, name in ipairs(buttonNames) do
         local button = _G[name]
         if button and not skinnedButtons[button] then
-            F.SkinButton(button)
+            safeCall(F.SkinButton, button)
             skinnedButtons[button] = true
         end
     end
@@ -64,7 +70,7 @@ local function skinDragonUITabs()
     for i = 1, (AuctionFrame.numTabs or 0) do
         local tab = _G["AuctionFrameTab" .. i]
         if tab and not skinnedTabs[tab] then
-            CP.ReskinTab(tab)
+            safeCall(CP.ReskinTab, tab)
             skinnedTabs[tab] = true
         end
     end
@@ -72,7 +78,7 @@ local function skinDragonUITabs()
     for i = 1, 4 do
         local tab = _G["Atr_ListTabsTab" .. i]
         if tab and not skinnedTabs[tab] then
-            CP.ReskinTab(tab, true)
+            safeCall(CP.ReskinTab, tab, true)
             skinnedTabs[tab] = true
         end
     end
@@ -94,7 +100,7 @@ local function skinDragonUIInputs()
         for _, name in ipairs(scrollbars) do
             local frame = _G[name]
             if frame and not skinnedInputs[frame] then
-                F.SkinScrollBar(frame)
+                safeCall(F.SkinScrollBar, frame)
                 skinnedInputs[frame] = true
             end
         end
@@ -114,7 +120,7 @@ local function skinDragonUIInputs()
         for _, name in ipairs(boxes) do
             local box = _G[name]
             if box and not skinnedInputs[box] then
-                F.SkinEditBox(box)
+                safeCall(F.SkinEditBox, box)
                 skinnedInputs[box] = true
             end
         end
@@ -133,9 +139,9 @@ end
 
 pending:SetScript("OnUpdate", function(self)
     self:Hide()
-    skinDragonUIButtons()
-    skinDragonUITabs()
-    skinDragonUIInputs()
+    pcall(skinDragonUIButtons)
+    pcall(skinDragonUITabs)
+    pcall(skinDragonUIInputs)
 end)
 
 if AuctionatorRemastered and AuctionatorRemastered.Legacy and AuctionatorRemastered.Legacy.Hook then

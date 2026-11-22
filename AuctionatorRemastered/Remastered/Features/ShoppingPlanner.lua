@@ -471,14 +471,16 @@ function Atr_ShowBrowserShoppingLists(list)
     CloseDropDownMenus();frame:Show()
 end
 local events=CreateFrame("Frame")
-for _,event in ipairs({"BAG_UPDATE","BANKFRAME_OPENED","BANKFRAME_CLOSED","PLAYERBANKSLOTS_CHANGED","PLAYER_ENTERING_WORLD"}) do events:RegisterEvent(event) end
+for _,event in ipairs({"BAG_UPDATE","BANKFRAME_OPENED","BANKFRAME_CLOSED","PLAYERBANKSLOTS_CHANGED","PLAYER_ENTERING_WORLD","AUCTION_HOUSE_CLOSED"}) do events:RegisterEvent(event) end
 local pending
 local function updateInventory()
     if bankOpen then captureBank() end
     if frame and frame:IsShown() then renderItems() end
 end
 events:SetScript("OnEvent",function(self,event)
-    if event=="BANKFRAME_OPENED" then bankOpen=true;updateInventory()
+    if event=="AUCTION_HOUSE_CLOSED" then
+        if frame and frame:IsShown() then frame:Hide() end
+    elseif event=="BANKFRAME_OPENED" then bankOpen=true;updateInventory()
     elseif event=="BANKFRAME_CLOSED" then bankOpen=false;updateInventory()
     elseif event=="PLAYER_ENTERING_WORLD" then bankOpen=false;pending=0.2
     else

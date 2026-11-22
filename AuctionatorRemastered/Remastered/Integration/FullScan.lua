@@ -112,10 +112,14 @@ local function reset()
     if StaticPopup_Hide then StaticPopup_Hide("ATR_STOP_SCAN") end
 end
 function Atr_FullScanCancel(reason)
-    if not S.running then return end
+    if not S.running then
+        if StaticPopup_Hide then StaticPopup_Hide("ATR_STOP_SCAN") end
+        return
+    end
     Atr_DatabaseCancelFullScan()
     if Atr_BrowserCancelFullScanMetadata then Atr_BrowserCancelFullScanMetadata() end
     reset()
+    if collectgarbage then collectgarbage("step", 100) end
     S.error=reason or "Scan cancelled. Saved prices were not changed."
     status(S.error)
 end
@@ -166,6 +170,8 @@ local function finish(result)
     status(result.complete and "Scan complete!" or result.stopped and "Scan stopped. Collected prices saved (partial scan)." or "Partial scan saved. Some auction data was missing.")
     Atr_FullScanMoreDetails()
     Atr_Broadcast_DBupdated(result.identified+result.unresolved,"fullscan")
+    if Atr_DatabaseBackup then Atr_DatabaseBackup() end
+    if collectgarbage then collectgarbage("step", 100) end
     -- Empty the client's bulk buffer when possible. Completion never depends
     -- on this optional cleanup request, and no forced full collection is needed.
     if CanSendAuctionQuery() then Atr_ClearBrowseListings() end
@@ -254,6 +260,7 @@ function Atr_FullScanAnalyze()
         S.scanned=S.scanned+1;S.position=index+1
         if GetTime()-started>=S.budget then break end
     end
+    if collectgarbage then collectgarbage("step", 50) end
     updateProgress(S.position>count)
     if S.position<=count then return end
     if S.slow then

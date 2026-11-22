@@ -17,13 +17,13 @@ function Atr_AnalysisSkin(control, kind)
     local F = dui and dui.ForeverUI
     if F then
         if (kind == "Button" or kind == "CloseButton") and F.SkinButton then
-            F.SkinButton(control)
+            pcall(F.SkinButton, control)
         elseif kind == "EditBox" and F.SkinEditBox then
-            F.SkinEditBox(control)
+            pcall(F.SkinEditBox, control)
         elseif kind == "CheckBox" and F.SkinCheckButton then
-            F.SkinCheckButton(control)
+            pcall(F.SkinCheckButton, control)
         elseif kind == "ScrollBar" and F.SkinScrollBar then
-            F.SkinScrollBar(control)
+            pcall(F.SkinScrollBar, control)
         end
     end
 end

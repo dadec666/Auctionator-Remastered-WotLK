@@ -4,7 +4,7 @@ local DB = {VERSION = 1}
 AuctionatorRemastered.Models.Database = DB
 local Identity = AuctionatorRemastered.Models.ItemIdentity
 local function finite(value) return type(value)=="number" and value==value and value>-math.huge and value<math.huge end
-function DB.ValidPrice(value) return finite(value) and value>0 end
+function DB.ValidPrice(value) return finite(value) and value>0 and value<=2147483647 end
 local function validName(value) return type(value)=="string" and value~="" and #value<=512 end
 
 local function validRecord(record)
@@ -30,6 +30,78 @@ end
 
 function DB.New()
     return {schemaVersion=DB.VERSION, markets={},catalog={items={},names={},unresolved={}}}
+end
+
+function DB.Clone(root)
+    if type(root)~="table" then return nil end
+    local copy={schemaVersion=root.schemaVersion or DB.VERSION,markets={},catalog={items={},names={},unresolved={}}}
+    if type(root.catalog)=="table" then
+        if type(root.catalog.items)=="table" then
+            for k,v in pairs(root.catalog.items) do
+                if type(v)=="table" then
+                    local itemCopy={}
+                    for ik,iv in pairs(v) do itemCopy[ik]=iv end
+                    copy.catalog.items[k]=itemCopy
+                else copy.catalog.items[k]=v end
+            end
+        end
+        if type(root.catalog.names)=="table" then
+            for loc,aliases in pairs(root.catalog.names) do
+                copy.catalog.names[loc]={}
+                if type(aliases)=="table" then for ak,av in pairs(aliases) do copy.catalog.names[loc][ak]=av end end
+            end
+        end
+        if type(root.catalog.unresolved)=="table" then
+            for loc,list in pairs(root.catalog.unresolved) do
+                copy.catalog.unresolved[loc]={}
+                if type(list)=="table" then for uk,uv in pairs(list) do copy.catalog.unresolved[loc][uk]=uv end end
+            end
+        end
+    end
+    if type(root.markets)=="table" then
+        for scope,m in pairs(root.markets) do
+            if type(m)=="table" then
+                local marketCopy={items={},names={},unresolved={}}
+                if type(m.items)=="table" then
+                    for k,rec in pairs(m.items) do
+                        if type(rec)=="table" then
+                            local recCopy={}
+                            for rk,rv in pairs(rec) do
+                                if rk=="ms" and type(rv)=="table" then
+                                    local msCopy={day=rv.day,last=rv.last,values={}}
+                                    if type(rv.values)=="table" then for vi,vv in ipairs(rv.values) do msCopy.values[vi]=vv end end
+                                    recCopy.ms=msCopy
+                                else recCopy[rk]=rv end
+                            end
+                            marketCopy.items[k]=recCopy
+                        end
+                    end
+                end
+                if type(m.names)=="table" then
+                    for loc,aliases in pairs(m.names) do
+                        marketCopy.names[loc]={}
+                        if type(aliases)=="table" then for ak,av in pairs(aliases) do marketCopy.names[loc][ak]=av end end
+                    end
+                end
+                if type(m.unresolved)=="table" then
+                    for loc,unres in pairs(m.unresolved) do
+                        marketCopy.unresolved[loc]={}
+                        if type(unres)=="table" then
+                            for uk,rec in pairs(unres) do
+                                if type(rec)=="table" then
+                                    local recCopy={}
+                                    for rk,rv in pairs(rec) do recCopy[rk]=rv end
+                                    marketCopy.unresolved[loc][uk]=recCopy
+                                end
+                            end
+                        end
+                    end
+                end
+                copy.markets[scope]=marketCopy
+            end
+        end
+    end
+    return copy
 end
 
 function DB.Validate(root)

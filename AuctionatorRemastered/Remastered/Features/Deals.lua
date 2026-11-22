@@ -164,6 +164,7 @@ local function refresh(reset)
     applyFilters(reset)
 end
 local function makePanel()
+    local pendingDealsSearch
     panel=CreateFrame('Frame','Atr_DealsPanel',AuctionFrame)
     panel:SetFrameLevel(AuctionFrame:GetFrameLevel()+30)
     Atr_AnalysisFit(panel);panel:SetBackdrop(nil)
@@ -258,9 +259,18 @@ local function makePanel()
     text('Name',20,-30)
     search=CreateFrame('EditBox','Atr_DealsSearch',panel,'InputBoxTemplate')
     Atr_AnalysisSkin(search,'EditBox');search:SetSize(240,22);search:SetPoint('TOPLEFT',panel,'TOPLEFT',24,-48);search:SetAutoFocus(false)
-    search:SetScript('OnTextChanged',function() refresh(true) end)
-    search:SetScript('OnEscapePressed',function(self) self:ClearFocus() end)
-    search:SetScript('OnEnterPressed',function(self) self:ClearFocus() end)
+    search:SetScript('OnTextChanged',function(self)
+        if self.HasFocus and self:HasFocus() then pendingDealsSearch=0.2
+        else pendingDealsSearch=nil;refresh(true) end
+    end)
+    search:SetScript('OnEscapePressed',function(self) pendingDealsSearch=nil;self:ClearFocus() end)
+    search:SetScript('OnEnterPressed',function(self) pendingDealsSearch=nil;refresh(true);self:ClearFocus() end)
+    search:SetScript('OnUpdate',function(self,elapsed)
+        if pendingDealsSearch then
+            pendingDealsSearch=pendingDealsSearch-elapsed
+            if pendingDealsSearch<=0 then pendingDealsSearch=nil;refresh(true) end
+        end
+    end)
     local settingsButton=button('Atr_DealsSettings','Settings',550,-48,100,function()
         search:ClearFocus()
         if advanced:IsShown() then advanced:Hide() else advanced:Show() end
@@ -272,7 +282,7 @@ local function makePanel()
         GameTooltip:Show()
     end)
     settingsButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
-    button('Atr_DealsClearSearch','Clear search',660,-48,110,function() search:SetText('');search:ClearFocus() end)
+    button('Atr_DealsClearSearch','Clear search',660,-48,110,function() pendingDealsSearch=nil;search:SetText('');search:ClearFocus();refresh(true) end)
     text('Categories',20,-90)
     summary=text('',20,0,'GameFontHighlightSmall')
     summary:ClearAllPoints();summary:SetPoint('BOTTOMLEFT',panel,'BOTTOMLEFT',20,22)
@@ -377,6 +387,7 @@ local function makePanel()
         Atr_StyleOfflineBrowser(details,false);positionDetails();details:Show()
     end)
     panel:SetScript('OnHide',function()
+        pendingDealsSearch=nil
         advanced:Hide();details:Hide();detailsName=nil;Atr_AnalysisEnd(artwork);artwork={}
         if moneyWasShown and AuctionFrameMoneyFrame then AuctionFrameMoneyFrame:Show() end
         moneyWasShown=nil

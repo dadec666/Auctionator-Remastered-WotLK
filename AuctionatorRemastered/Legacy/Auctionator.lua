@@ -1005,7 +1005,7 @@ function Atr_ScanBags (mats, gear)
 
 				local itemName, _, itemRarity, itemLevel, _, itemType, itemSubType = GetItemInfo (itemLink);
 
-				if ((itemType == "Armor" or itemType == "Weapon") and itemLevel > 271) then
+				if (itemName and itemLevel and (itemType == "Armor" or itemType == "Weapon") and itemLevel > 271) then
 					local key = itemType.."_"..itemSubType.."_"..itemRarity.."_"..itemLevel;
 					if (gear[key]) then
 						gear[key].count = gear[key].count + 1;
@@ -1020,7 +1020,7 @@ function Atr_ScanBags (mats, gear)
 					end
 				end
 				
-				if (zc.StringContains (itemName, "Celestial Essence", "Heavenly Shard", "Hypnotic Dust", "Maelstrom Crystal")) then
+				if (itemName and zc.StringContains (itemName, "Celestial Essence", "Heavenly Shard", "Hypnotic Dust", "Maelstrom Crystal")) then
 					local key = itemName;
 					if (mats[key]) then
 						mats[key].count = mats[key].count + itemCount;
@@ -1738,7 +1738,21 @@ function Atr_OnAuctionPostedMessage(message)
     Atr_ConfirmPostedAuctions(gJustPosted.systemConfirmed);
 end
 
-function Atr_CreateAuction_OnClick ()
+StaticPopupDialogs["ATR_CONFIRM_LOW_PRICE"] = {
+	text = "%s",
+	button1 = "Post Anyway",
+	button2 = "Cancel",
+	OnAccept = function(self)
+		if self.atrExecutePost then
+			self.atrExecutePost();
+		end
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+};
+
+local function Atr_ExecuteCreateAuction ()
 
 	gAtr_SellTriggeredByAuctionator = true;
 
@@ -1746,13 +1760,8 @@ function Atr_CreateAuction_OnClick ()
 	gJustPosted.ItemLink			= gCurrentPane.activeScan.itemLink;
 	gJustPosted.BuyoutPrice			= MoneyInputFrame_GetCopper(Atr_StackPrice);
 
-	-- if (zc.IsBattlePetLink (gJustPosted.ItemLink)) then
-		-- gJustPosted.StackSize			= 1;
-		-- gJustPosted.NumStacks			= 1;
-	-- else
-		gJustPosted.StackSize			= Atr_StackSize();
-		gJustPosted.NumStacks			= Atr_Batch_NumAuctions:GetNumber();
-	-- end
+	gJustPosted.StackSize			= Atr_StackSize();
+	gJustPosted.NumStacks			= Atr_Batch_NumAuctions:GetNumber();
 	
 	local duration				= UIDropDownMenu_GetSelectedValue(Atr_Duration);
 	local stackStartingPrice	= MoneyInputFrame_GetCopper(Atr_StartingPrice);
@@ -1769,14 +1778,67 @@ function Atr_CreateAuction_OnClick ()
 	Atr_ItemPriceText:Hide();
 	Atr_ItemPrice:Hide();
 	Atr_ItemsOwned_Text:SetText ("Items owned: 0");
-	gCurrentPane.totalItems = 0
-	gCurrentPane.fullStackSize = 0
+	gCurrentPane.totalItems = 0;
+	gCurrentPane.fullStackSize = 0;
 	Atr_Batch_MaxAuctions_Text:SetText (ZT("max")..": 0");
 	Atr_Batch_MaxStacksize_Text:SetText (ZT("max")..": 0");
-	Atr_Batch_NumAuctions:SetText(0)
-	Atr_SetStackSize(0)
+	Atr_Batch_NumAuctions:SetText(0);
+	Atr_SetStackSize(0);
 	
 	Atr_SetToShowCurrent();
+end
+
+function Atr_CreateAuction_OnClick ()
+	if not gCurrentPane or not gCurrentPane.activeScan then return; end
+
+	local stackStartingPrice = MoneyInputFrame_GetCopper(Atr_StartingPrice);
+	local stackBuyoutPrice = MoneyInputFrame_GetCopper(Atr_StackPrice);
+	local stackSize = Atr_StackSize();
+	local numStacks = Atr_Batch_NumAuctions:GetNumber();
+
+	if (stackSize <= 0 or numStacks <= 0) then return; end
+	if (stackBuyoutPrice <= 0 and stackStartingPrice <= 0) then return; end
+
+	if IsShiftKeyDown and IsShiftKeyDown() then
+		Atr_ExecuteCreateAuction();
+		return;
+	end
+
+	local unitPrice = (stackBuyoutPrice > 0 and stackBuyoutPrice or stackStartingPrice) / stackSize;
+	local itemLink = gCurrentPane.activeScan.itemLink;
+	local itemName = gCurrentPane.activeScan.itemName;
+
+	-- Check against vendor sell price
+	if itemLink then
+		local _, _, _, _, _, _, _, _, _, _, itemVendorPrice = GetItemInfo(itemLink);
+		if itemVendorPrice and itemVendorPrice > 0 and unitPrice < itemVendorPrice then
+			local msg = string.format(
+				"Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling to a vendor gives more money.\n\nAre you sure you want to post?",
+				zc.priceToMoneyString(math.floor(unitPrice)),
+				zc.priceToMoneyString(itemVendorPrice)
+			);
+			local dialog = StaticPopup_Show("ATR_CONFIRM_LOW_PRICE", msg);
+			if dialog then dialog.atrExecutePost = Atr_ExecuteCreateAuction; end
+			return;
+		end
+	end
+
+	-- Check against historical market reference (> 10 gold reference and buyout < 20% of reference)
+	if itemName and Atr_MarketReference then
+		local refPrice = Atr_MarketReference(itemName);
+		if refPrice and refPrice >= 100000 and unitPrice < (refPrice * 0.20) then
+			local msg = string.format(
+				"Warning: Buyout (%s) is more than 80%% below the market reference (%s)!\n\nAre you sure you want to post?",
+				zc.priceToMoneyString(math.floor(unitPrice)),
+				zc.priceToMoneyString(refPrice)
+			);
+			local dialog = StaticPopup_Show("ATR_CONFIRM_LOW_PRICE", msg);
+			if dialog then dialog.atrExecutePost = Atr_ExecuteCreateAuction; end
+			return;
+		end
+	end
+
+	Atr_ExecuteCreateAuction();
 end
 
 
@@ -1950,7 +2012,7 @@ function auctionator_ChatEdit_InsertLink(text)
 	if (text and AuctionFrame:IsShown() and IsShiftKeyDown() and Atr_IsTabSelected(BUY_TAB)) then	
 		local item;
 		if ( strfind(text, "item:", 1, true) ) then
-			item = GetItemInfo(text);
+			item = GetItemInfo(text) or (type(text) == "string" and text:match("|h%[(.-)%]|h"));
 		elseif (strfind(text, "Enchant ", 1, true) ) then		
 			local EnchantName = GetSpellInfo(zc.ItemIDStrfromLink(text));
 			item = "Scroll of "..EnchantName;
@@ -2853,6 +2915,10 @@ function Atr_OnAuctionHouseClosed()
 	gJustPosted.confirmed = nil;
 	gPostingOwnerListReady = false;
 
+	if (Atr_ClearBuyState) then Atr_ClearBuyState(); end
+	if (Atr_Buy_Cancel) then pcall(Atr_Buy_Cancel); end
+	if (Atr_FullScanCancel) then pcall(Atr_FullScanCancel); end
+
 	Atr_HideAllDialogs();
 	
 	Atr_CheckingActive_Finish();
@@ -2863,7 +2929,7 @@ function Atr_OnAuctionHouseClosed()
 	gShopPane:ClearSearch();
 	gMorePane:ClearSearch();
 	OpenAllBags(false);
-	gAtr_FullScanState	= ATR_FS_NULL --reset state too
+	gAtr_FullScanState	= ATR_FS_NULL; --reset state too
 
 end
 
@@ -2871,14 +2937,38 @@ end
 
 function Atr_HideAllDialogs()
 
-	Atr_CheckActives_Frame:Hide();
-	Atr_Error_Frame:Hide();
-	Atr_Buy_Confirm_Frame:Hide();
-	Atr_FullScanFrame:Hide();
-	Atr_Adv_Search_Dialog:Hide();
-	Atr_Mask:Hide();
-	Atr_SList_Conflict_Frame:Hide()
-	Atr_ShpList_Edit_Frame:Hide()
+	local function safeHide(f)
+		if (f and type(f.Hide) == "function") then
+			f:Hide();
+		end
+	end
+
+	safeHide(Atr_CheckActives_Frame);
+	safeHide(Atr_Error_Frame);
+	safeHide(Atr_Buy_Confirm_Frame);
+	safeHide(Atr_FullScanFrame);
+	safeHide(Atr_Adv_Search_Dialog);
+	safeHide(Atr_Mask);
+	safeHide(Atr_SList_Conflict_Frame);
+	safeHide(Atr_ShpList_Edit_Frame);
+	safeHide(_G["Atr_DealsDetails"]);
+	safeHide(_G["Atr_DealsAdvanced"]);
+	safeHide(_G["Atr_BrowserShoppingLists"]);
+
+	if (StaticPopup_Hide) then
+		StaticPopup_Hide("ATR_STOP_SCAN");
+		StaticPopup_Hide("ATR_CONFIRM_LOW_PRICE");
+		StaticPopup_Hide("ATR_FAST_SCAN_COOLDOWN");
+		StaticPopup_Hide("ATR_CLEAR_PRICE_DATABASE");
+		StaticPopup_Hide("ATR_DEL_SHOPPING_LIST");
+		StaticPopup_Hide("ATR_RENAME_SHOPPING_LIST");
+		StaticPopup_Hide("ATR_NEW_SHOPPING_LIST");
+		StaticPopup_Hide("ATR_SL_REQUEST_SHARING");
+		StaticPopup_Hide("ATR_SL_REQUEST_DENIED");
+		StaticPopup_Hide("ATR_BROWSER_NEW_SHOPPING_LIST");
+		StaticPopup_Hide("ATR_BROWSER_LIST_NAME");
+		StaticPopup_Hide("ATR_BROWSER_LIST_DELETE");
+	end
 end
 
 
@@ -4430,7 +4520,7 @@ function Atr_GetStackingPrefs_ByItem (itemLink)
 			return SP_NumStacks, SP_StackSize
 		end
 
-		local itemName = GetItemInfo (itemLink);
+		local itemName = GetItemInfo (itemLink) or (type(itemLink) == "string" and itemLink:match("|h%[(.-)%]|h"));
 		local text, spinfo;
 		
 		for text, spinfo in pairs (AUCTIONATOR_STACKING_PREFS) do
@@ -4451,7 +4541,7 @@ function Atr_Special_SP_ByItem (itemLink)
 
 	if (itemLink) then
 
-		local itemName = GetItemInfo (itemLink);
+		local itemName = GetItemInfo (itemLink) or (type(itemLink) == "string" and itemLink:match("|h%[(.-)%]|h"));
 
 		local text, spinfo
 		

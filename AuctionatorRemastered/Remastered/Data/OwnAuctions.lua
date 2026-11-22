@@ -9,7 +9,7 @@ local function ledger()
 end
 
 AuctionatorRemastered.Legacy.Hook("Atr_LogMsg", function(link, stackSize, stackPrice, stacks)
-    local name = GetItemInfo(link)
+    local name = GetItemInfo(link) or (type(link) == "string" and link:match("|h%[(.-)%]|h"))
     if not name or not stackSize or stackSize <= 0 or not stackPrice or not stacks or stacks <= 0 then return end
     local log = ledger()
     local identity=AuctionatorRemastered.Models.ItemIdentity

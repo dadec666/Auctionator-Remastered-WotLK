@@ -22,6 +22,17 @@ function Service.Open()
     if AUCTIONATOR_REMASTERED_DATABASE==nil then AUCTIONATOR_REMASTERED_DATABASE=DB.New() end
     local key=scope()
     local handle,reason=DB.Open(AUCTIONATOR_REMASTERED_DATABASE,key,locale())
+    if not handle and reason~="Unsupported Remastered database version" then
+        if type(AUCTIONATOR_REMASTERED_DATABASE_BAK)=="table"
+            and AUCTIONATOR_REMASTERED_DATABASE_BAK.schemaVersion==DB.VERSION
+            and DB.Validate(AUCTIONATOR_REMASTERED_DATABASE_BAK) then
+            AUCTIONATOR_REMASTERED_DATABASE=DB.Clone(AUCTIONATOR_REMASTERED_DATABASE_BAK)
+            handle,reason=DB.Open(AUCTIONATOR_REMASTERED_DATABASE,key,locale())
+            if handle and DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
+                DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Auctionator Remastered|r: Price database restored from backup after corruption.")
+            end
+        end
+    end
     if not handle then Service.failed=reason;return nil,reason end
     Service.active=handle;handles[handle.view]=handle
     legacyRoot=legacyRoot or {__dbversion=4}
@@ -42,6 +53,7 @@ function Atr_DatabaseInitialize()
     end
     Atr_PruneScanDB()
     Atr_PrunePostDB()
+    Atr_DatabaseBackup()
     Atr_Broadcast_DBupdated(0,"dbinited")
     return true
 end
@@ -268,11 +280,20 @@ function Atr_OnLoad(...)
     return true
 end
 
+function Atr_DatabaseBackup()
+    if AUCTIONATOR_REMASTERED_DATABASE and not Service.failed and DB.Validate(AUCTIONATOR_REMASTERED_DATABASE) then
+        AUCTIONATOR_REMASTERED_DATABASE_BAK = DB.Clone(AUCTIONATOR_REMASTERED_DATABASE)
+    end
+end
+
 local events=CreateFrame("Frame")
 events:RegisterEvent("PLAYER_LOGOUT")
 events:RegisterEvent("AUCTION_HOUSE_CLOSED")
 events:SetScript("OnEvent",function(_,event)
     if event=="AUCTION_HOUSE_CLOSED" then batch=nil
+    elseif event=="PLAYER_LOGOUT" then
+        if Service.active then DB.SyncView(Service.active) end
+        Atr_DatabaseBackup()
     elseif Service.active then DB.SyncView(Service.active) end
 end)
 

@@ -822,6 +822,10 @@ function Atr_ShowTipWithPricing (tip, link, num)
 	end
 	
 	local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, _, _, _, _, itemVendorPrice = GetItemInfo (link);
+	if not itemName and type(link) == "string" then
+		itemName = link:match("|h%[(.-)%]|h");
+	end
+	itemLink = itemLink or link;
 		
 
 	local showStackPrices = IsShiftKeyDown();
@@ -881,7 +885,7 @@ function Atr_ShowTipWithPricing (tip, link, num)
 	if (AUCTIONATOR_DE_DETAILS_TIPS == 4) then showDetails = false; end;
 	if (AUCTIONATOR_DE_DETAILS_TIPS == 5) then showDetails = true; end;
 	
-	if (showDetails and dePrice ~= nil) then
+	if (showDetails and dePrice ~= nil and itemLevel) then
 		Atr_AddDEDetailsToTip (tip, itemType, itemRarity, itemLevel)
 	end
 	
