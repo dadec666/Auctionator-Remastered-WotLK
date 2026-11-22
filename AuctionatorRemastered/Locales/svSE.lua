@@ -370,4 +370,13 @@ AtrL["Net:"] = "Netto:"
 AtrL["AH Cut:"] = "Auktionsavgift:"
 AtrL["Net received:"] = "Mottagen summa:"
 
+-- Price Deviation & Surge Guard
+AtrL["Enable Price Surge & Deviation Guard (warn on abnormal prices)"] = "Aktivera skydd mot prisavvikelser och extrema prishöjningar"
+AtrL["Below Vendor Floor"] = "Under handlarpris"
+AtrL["Extreme Low Price (-%d%%)"] = "Extremt lågt pris (-%d%%)"
+AtrL["Price Surge (+%d%%)"] = "Extrem prishöjning (+%d%%)"
+AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling to a vendor gives more money without AH deposit or cut.\n\nAre you sure you want to post?"] = ""
+AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = ""
+AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = ""
+
 end

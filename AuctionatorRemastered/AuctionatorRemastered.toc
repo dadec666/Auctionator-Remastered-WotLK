@@ -29,6 +29,7 @@ Remastered\Models\Database.lua
 Remastered\Models\ItemMetadata.lua
 Remastered\Models\SearchModifiers.lua
 Remastered\Models\BaitGuard.lua
+Remastered\Models\PriceGuard.lua
 
 Legacy\zcUtils.lua
 

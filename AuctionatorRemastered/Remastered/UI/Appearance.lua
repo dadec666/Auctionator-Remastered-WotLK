@@ -127,6 +127,9 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		if Atr_BaitGuardToggle then
 			Atr_BaitGuardToggle:SetChecked(AUCTIONATOR_SAVEDVARS.baitProtection ~= false)
 		end
+		if Atr_PriceGuardToggle then
+			Atr_PriceGuardToggle:SetChecked(AUCTIONATOR_SAVEDVARS.priceDeviationProtection ~= false)
+		end
 	end)
 	text(
 		Z("Drag the auction title to move AH. Drag Deal details to detach it from AH."),
@@ -188,7 +191,20 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		local enabled = self:GetChecked() and true or false
 		AUCTIONATOR_SAVEDVARS.baitProtection = enabled
 	end)
-	text(Z("Switch between modern terminals and the classic 2008 tabs."), 20, -270, "GameFontHighlightSmall", 550, 24)
+
+	local priceGuardChoice = CreateFrame("CheckButton", "Atr_PriceGuardToggle", appearance, "UICheckButtonTemplate")
+	Atr_AnalysisSkin(priceGuardChoice, "CheckBox")
+	priceGuardChoice:SetSize(24, 24)
+	priceGuardChoice:SetPoint("TOPLEFT", appearance, "TOPLEFT", 16, -270)
+	_G[priceGuardChoice:GetName() .. "Text"]:SetText(
+		Z("Enable Price Surge & Deviation Guard (warn on abnormal prices)")
+	)
+	priceGuardChoice:SetScript("OnClick", function(self)
+		local enabled = self:GetChecked() and true or false
+		AUCTIONATOR_SAVEDVARS.priceDeviationProtection = enabled
+	end)
+
+	text(Z("Switch between modern terminals and the classic 2008 tabs."), 20, -300, "GameFontHighlightSmall", 550, 24)
 
 	local function button(name, label, y, callback)
 		local b = CreateFrame("Button", name, appearance, "UIPanelButtonTemplate")
@@ -198,12 +214,12 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		b:SetText(label)
 		b:SetScript("OnClick", callback)
 	end
-	button("Atr_ResetAuctionPosition", Z("Reset auction window"), -300, resetAuctionPosition)
-	button("Atr_ResetDetailsPosition", Z("Reset Deal details"), -335, resetDetailsPosition)
+	button("Atr_ResetAuctionPosition", Z("Reset auction window"), -330, resetAuctionPosition)
+	button("Atr_ResetDetailsPosition", Z("Reset Deal details"), -365, resetDetailsPosition)
 	text(
 		Z("Reset Deal details places it beside AH and makes it follow the auction window again."),
 		236,
-		-335,
+		-365,
 		"GameFontHighlightSmall",
 		310,
 		42
@@ -211,7 +227,7 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 	text(
 		"Changes apply immediately. Shopping lists, prices and scan data are kept.",
 		20,
-		-390,
+		-420,
 		"GameFontDisableSmall",
 		550,
 		30

@@ -370,4 +370,13 @@ AtrL["Net:"] = "Итог:"
 AtrL["AH Cut:"] = "Комиссия аукциона:"
 AtrL["Net received:"] = "Получено на руки:"
 
+-- Price Deviation & Surge Guard
+AtrL["Enable Price Surge & Deviation Guard (warn on abnormal prices)"] = "Защита от аномальных цен (предупреждать о резких скачках и занижении)"
+AtrL["Below Vendor Floor"] = "Ниже цены вендора"
+AtrL["Extreme Low Price (-%d%%)"] = "Аномально низкая цена (-%d%%)"
+AtrL["Price Surge (+%d%%)"] = "Резкий скачок цены (+%d%%)"
+AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling to a vendor gives more money without AH deposit or cut.\n\nAre you sure you want to post?"] = "Внимание: Выкуп (%s) ниже цены сдачи торговцу (%s)!\n\nПродажа торговцу выгоднее и не требует залога или комиссии.\n\nВы уверены, что хотите выставить лот?"
+AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = "Внимание: Выкуп (%s) на %d%% ниже рыночной цены (%s)!\n\nВозможно, пропущен ноль?\n\nВы уверены, что хотите выставить лот по этой цене?"
+AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = "Внимание: Выкуп (%s) на %d%% выше рыночной цены (%s)!\n\nЭто аномальное завышение цены. Залог за аукцион сгорит, если лот не купят.\n\nВы уверены, что хотите выставить лот по этой цене?"
+
 end

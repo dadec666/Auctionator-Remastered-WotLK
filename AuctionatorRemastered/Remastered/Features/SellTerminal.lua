@@ -12,7 +12,7 @@ local buyoutGold, buyoutSilver, buyoutCopper
 local bidGold, bidSilver, bidCopper
 local stackSizeEdit, numStacksEdit
 local durationButtons = {}
-local depositVal, netRevenueVal, postBtn
+local depositVal, netRevenueVal, postBtn, priceWarningBadge
 local compStatusBadge, compHeaderTitle
 local categoryButtons = {}
 local artwork = {}
@@ -289,6 +289,10 @@ local function RecalculateEstimates()
 		if netRevenueVal then
 			netRevenueVal:SetText("--")
 		end
+		if priceWarningBadge then
+			priceWarningBadge:SetText("")
+			priceWarningBadge:Hide()
+		end
 		return
 	end
 
@@ -313,6 +317,32 @@ local function RecalculateEstimates()
 	local netRevenue = math.floor(grossRevenue * 0.95)
 	if netRevenueVal then
 		netRevenueVal:SetText(money(netRevenue))
+	end
+
+	-- Check price deviation warning badge
+	if priceWarningBadge then
+		local PG = AuctionatorRemastered and AuctionatorRemastered.Models and AuctionatorRemastered.Models.PriceGuard
+		local unitBuyout = GetInputBuyout()
+		if priceMode == "stack" then
+			unitBuyout = math.floor(unitBuyout / size)
+		end
+		if stagedItem and PG and PG.IsEnabled() and unitBuyout > 0 then
+			local marketRef = (Atr_MarketReference and Atr_MarketReference(stagedItem.name))
+				or (Atr_GetAuctionPrice and Atr_GetAuctionPrice(stagedItem.name))
+				or 0
+			local eval = PG.EvaluatePrice(unitBuyout, marketRef, stagedItem.vendorPrice or 0)
+			if eval.isAnomaly then
+				local badgeText, hex = PG.GetBadgeText(eval)
+				priceWarningBadge:SetText("|cff" .. hex .. badgeText .. "|r")
+				priceWarningBadge:Show()
+			else
+				priceWarningBadge:SetText("")
+				priceWarningBadge:Hide()
+			end
+		else
+			priceWarningBadge:SetText("")
+			priceWarningBadge:Hide()
+		end
 	end
 end
 
@@ -1100,6 +1130,14 @@ local function MakeSellTerminal()
 	postBtn:SetPoint("BOTTOM", panel.staging, "BOTTOM", 0, 8)
 	postBtn:SetText(Z("Create Auction"))
 	postBtn:SetScript("OnClick", PostStagedAuction)
+
+	-- Price Anomaly Warning Badge
+	priceWarningBadge = panel.staging:CreateFontString("Atr_PriceWarningBadge", "OVERLAY", "GameFontHighlightSmall")
+	priceWarningBadge:SetPoint("BOTTOM", postBtn, "TOP", 0, 4)
+	priceWarningBadge:SetWidth(266)
+	priceWarningBadge:SetJustifyH("CENTER")
+	priceWarningBadge:SetText("")
+	priceWarningBadge:Hide()
 
 	-- ------------------------------------------------------------------------
 	-- Column 3: Live Market Competitors

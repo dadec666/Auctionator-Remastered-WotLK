@@ -1,6 +1,7 @@
 dofile("AuctionatorRemastered/Remastered/Core/Bootstrap.lua")
 dofile("AuctionatorRemastered/Remastered/Integration/LegacyBridge.lua")
 dofile("AuctionatorRemastered/Remastered/Models/BaitGuard.lua")
+dofile("AuctionatorRemastered/Remastered/Models/PriceGuard.lua")
 
 local checks = 0
 local function check(v, msg)
@@ -366,5 +367,37 @@ local function TestBaitGuardIntegration()
 	check(summary.lowestNormal == 950000, "Lowest normal should be 950,000c")
 end
 TestBaitGuardIntegration()
+
+-- =========================================================================
+-- Test 8: Price Deviation & Surge Guard Integration in Sell Terminal
+-- =========================================================================
+local function TestPriceGuardIntegration()
+	local PG = AuctionatorRemastered.Models.PriceGuard
+	check(PG ~= nil, "PriceGuard model should be loaded")
+
+	local marketPrice = 1000000 -- 100g
+	local vendorPrice = 10000 -- 1g
+
+	-- Surge: 500g (>300% surge)
+	local evalSurge = PG.EvaluatePrice(5000000, marketPrice, vendorPrice)
+	check(evalSurge.isAnomaly == true, "500g is anomaly")
+	check(evalSurge.anomalyType == "EXTREME_HIGH", "Anomaly is EXTREME_HIGH")
+	local badge, hex = PG.GetBadgeText(evalSurge)
+	check(badge:find("Price Surge", 1, true) ~= nil, "Badge text warns surge")
+
+	-- Dump: 10g (<20% of market, i.e. 90% below)
+	local evalDump = PG.EvaluatePrice(100000, marketPrice, vendorPrice)
+	check(evalDump.isAnomaly == true, "10g is dump anomaly")
+	check(evalDump.anomalyType == "EXTREME_LOW", "Anomaly is EXTREME_LOW")
+
+	-- Below vendor: 50s (<1g vendor price)
+	local evalVendor = PG.EvaluatePrice(5000, marketPrice, vendorPrice)
+	check(evalVendor.isAnomaly == true, "50s is below vendor")
+	check(evalVendor.anomalyType == "BELOW_VENDOR", "Anomaly is BELOW_VENDOR")
+	badge, hex = PG.GetBadgeText(evalVendor)
+	check(badge:find("Below Vendor Floor", 1, true) ~= nil, "Badge warns below vendor")
+	check(hex == "ff4444", "Below vendor badge is red")
+end
+TestPriceGuardIntegration()
 
 print(string.format("PASS: %d SellTerminal unit tests passed successfully", checks))

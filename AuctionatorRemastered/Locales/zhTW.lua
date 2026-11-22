@@ -389,4 +389,13 @@ AtrL["Net:"] = "淨額:"
 AtrL["AH Cut:"] = "拍賣場手續費:"
 AtrL["Net received:"] = "實際入賬:"
 
+-- Price Deviation & Surge Guard
+AtrL["Enable Price Surge & Deviation Guard (warn on abnormal prices)"] = "啟用價格異常與暴漲保護（對異常價格發出警告）"
+AtrL["Below Vendor Floor"] = "低於商人售價"
+AtrL["Extreme Low Price (-%d%%)"] = "價格異常偏低 (-%d%%)"
+AtrL["Price Surge (+%d%%)"] = "價格異常暴漲 (+%d%%)"
+AtrL["Warning: Buyout (%s) is lower than the vendor sell price (%s)!\n\nSelling to a vendor gives more money without AH deposit or cut.\n\nAre you sure you want to post?"] = ""
+AtrL["Warning: Buyout (%s) is %d%% below the market reference (%s)!\n\nDid you forget a zero?\n\nAre you sure you want to post at this price?"] = ""
+AtrL["Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?"] = ""
+
 end

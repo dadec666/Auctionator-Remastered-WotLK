@@ -1859,6 +1859,21 @@ function Atr_CreateAuction_OnClick ()
 			if dialog then dialog.atrExecutePost = Atr_ExecuteCreateAuction; end
 			return;
 		end
+
+		local PG = AuctionatorRemastered and AuctionatorRemastered.Models and AuctionatorRemastered.Models.PriceGuard;
+		local surgeThreshold = (PG and PG.GetSurgeThreshold and PG.GetSurgeThreshold()) or 300;
+		if refPrice and refPrice >= 10000 and unitPrice > (refPrice * (1 + surgeThreshold / 100)) then
+			local surgePct = math.floor(((unitPrice - refPrice) / refPrice) * 100);
+			local msg = string.format(
+				"Warning: Buyout (%s) is %d%% above the market reference (%s)!\n\nThis is an extreme price surge. The auction deposit may be lost if it does not sell.\n\nAre you sure you want to post at this price?",
+				zc.priceToMoneyString(math.floor(unitPrice)),
+				surgePct,
+				zc.priceToMoneyString(refPrice)
+			);
+			local dialog = StaticPopup_Show("ATR_CONFIRM_LOW_PRICE", msg);
+			if dialog then dialog.atrExecutePost = Atr_ExecuteCreateAuction; end
+			return;
+		end
 	end
 
 	Atr_ExecuteCreateAuction();
