@@ -12,7 +12,7 @@ end
 local rows, filters, ranges = {}, {}, {}
 local kind, days, records = "All", 30, {}
 local sortKey, descending, headings = "when", true, {}
-local colors = {Bought = "66ccff", Listed = "ffcc66"}
+local colors = {Bought = "66ccff", Listed = "ffcc66", Sold = "1eff00"}
 local function money(value)
     return gAtrZC.priceToMoneyString(math.floor(value + 0.5))
 end
@@ -36,9 +36,14 @@ local function render()
 end
 local function refresh(reset)
     if not panel then return end
-    local spent, listed, bought, offered
-    records, spent, listed, bought, offered = Atr_GetTradingLogs(kind, search:GetText(), days,
+    local spent, listed, bought, offered, earned, sold
+    records, spent, listed, bought, offered, earned, sold = Atr_GetTradingLogs(kind, search:GetText(), days,
         characterOnly:GetChecked() and UnitName("player") or nil)
+    earned = earned or 0
+    sold = sold or 0
+    local netProfit = earned - spent
+    local netColor = netProfit >= 0 and "1eff00" or "ff4444"
+    local netSign = netProfit > 0 and "+" or ""
     Atr_SortTradingLogs(records,sortKey,descending)
     for key,button in pairs(headings) do
         if key==sortKey then
@@ -47,8 +52,8 @@ local function refresh(reset)
         else button.arrow:Hide() end
     end
     if reset then FauxScrollFrame_SetOffset(scroll, 0); scroll:SetVerticalScroll(0) end
-    summary:SetText("|cff66ccffSpent:|r "..money(spent).."  ("..bought.." items)    |cffffcc66Listed value:|r "..money(listed).."  ("..offered.." items)")
-    empty:SetText(#records == 0 and "No purchases or listings found.\nTry another item, activity type or time range." or "")
+    summary:SetText("|cff66ccffSpent:|r "..money(spent).."  |cffffcc66Listed:|r "..money(listed).."  |cff1eff00Sold:|r "..money(earned).." ("..sold..")  |cff"..netColor.."Net:|r "..netSign..money(netProfit))
+    empty:SetText(#records == 0 and "No transactions found.\nTry another item, activity type or time range." or "")
     for name, button in pairs(filters) do button:SetText(kind == name and "|cffffffff"..name.."|r" or name) end
     for name, button in pairs(ranges) do
         local active = (name == "All time" and not days) or name == tostring(days).." days"
@@ -99,9 +104,9 @@ local function makePanel()
         button:SetText(label);button:SetScript("OnClick",callback)
         return button
     end
-    for i,name in ipairs({"All","Bought","Listed"}) do
+    for i,name in ipairs({"All","Bought","Listed","Sold"}) do
         local selected=name
-        filters[name]=filterButton(name,281+(i-1)*63,60,function() kind=selected;refresh(true) end)
+        filters[name]=filterButton(name,281+(i-1)*51,48,function() kind=selected;refresh(true) end)
     end
     for i,range in ipairs({7,30,false}) do
         local value=range
@@ -175,7 +180,13 @@ local function makePanel()
             GameTooltip:AddLine("Price / item: "..money(data.unit), 1, 1, 1)
             GameTooltip:AddLine("Total: "..money(data.total), 1, 1, 1)
             GameTooltip:AddLine(date("%Y-%m-%d %H:%M:%S", data.when), 0.8, 0.8, 0.8)
-            if data.seller then GameTooltip:AddLine("Seller: "..data.seller, 1, 1, 1) end
+            if data.kind == "Sold" then
+                if data.buyer and data.buyer ~= "" then GameTooltip:AddLine("Buyer: "..data.buyer, 1, 1, 1) end
+                if data.consignment and data.consignment > 0 then GameTooltip:AddLine("AH Cut: "..money(data.consignment), 0.8, 0.8, 0.8) end
+                if data.net and data.net > 0 then GameTooltip:AddLine("Net received: "..money(data.net), 0.2, 1, 0.2) end
+            elseif data.seller then
+                GameTooltip:AddLine("Seller: "..data.seller, 1, 1, 1)
+            end
             GameTooltip:Show()
         end)
         row:SetScript("OnLeave", function() GameTooltip:Hide() end)

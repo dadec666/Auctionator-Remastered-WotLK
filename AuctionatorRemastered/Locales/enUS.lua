@@ -328,4 +328,14 @@ AtrL["Crafting Cost:"] = ""
 AtrL["Estimated Profit:"] = ""
 AtrL["Created shopping list '%s' with %d reagents."] = ""
 
+-- Sales & Trading Logs
+AtrL["Sold"] = ""
+AtrL["Total Earned:"] = ""
+AtrL["Net Profit:"] = ""
+AtrL["Buyer:"] = ""
+AtrL["Buyer"] = ""
+AtrL["Net:"] = ""
+AtrL["AH Cut:"] = ""
+AtrL["Net received:"] = ""
+
 end

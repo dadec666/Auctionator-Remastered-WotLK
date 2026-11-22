@@ -348,4 +348,14 @@ AtrL["Crafting Cost:"] = ""
 AtrL["Estimated Profit:"] = ""
 AtrL["Created shopping list '%s' with %d reagents."] = ""
 
+-- Sales & Trading Logs
+AtrL["Sold"] = "Vendido"
+AtrL["Total Earned:"] = "Total ganado:"
+AtrL["Net Profit:"] = "Beneficio neto:"
+AtrL["Buyer:"] = "Comprador:"
+AtrL["Buyer"] = "Comprador"
+AtrL["Net:"] = "Neto:"
+AtrL["AH Cut:"] = "Comisión de subasta:"
+AtrL["Net received:"] = "Neto recibido:"
+
 end

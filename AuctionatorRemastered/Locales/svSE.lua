@@ -360,4 +360,14 @@ AtrL["Crafting Cost:"] = ""
 AtrL["Estimated Profit:"] = ""
 AtrL["Created shopping list '%s' with %d reagents."] = ""
 
+-- Sales & Trading Logs
+AtrL["Sold"] = "Såld"
+AtrL["Total Earned:"] = "Totalt intjänat:"
+AtrL["Net Profit:"] = "Nettovinst:"
+AtrL["Buyer:"] = "Köpare:"
+AtrL["Buyer"] = "Köpare"
+AtrL["Net:"] = "Netto:"
+AtrL["AH Cut:"] = "Auktionsavgift:"
+AtrL["Net received:"] = "Mottagen summa:"
+
 end

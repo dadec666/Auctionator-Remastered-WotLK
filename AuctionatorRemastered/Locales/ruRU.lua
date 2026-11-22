@@ -360,4 +360,14 @@ AtrL["Crafting Cost:"] = "Себестоимость крафта:"
 AtrL["Estimated Profit:"] = "Ожидаемая прибыль:"
 AtrL["Created shopping list '%s' with %d reagents."] = "Создан список покупок '%s' с %d реагентами."
 
+-- Sales & Trading Logs
+AtrL["Sold"] = "Продано"
+AtrL["Total Earned:"] = "Всего заработано:"
+AtrL["Net Profit:"] = "Чистая прибыль:"
+AtrL["Buyer:"] = "Покупатель:"
+AtrL["Buyer"] = "Покупатель"
+AtrL["Net:"] = "Итог:"
+AtrL["AH Cut:"] = "Комиссия аукциона:"
+AtrL["Net received:"] = "Получено на руки:"
+
 end

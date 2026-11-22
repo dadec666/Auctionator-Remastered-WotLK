@@ -1,11 +1,11 @@
--- Unified view of the existing purchase and posting ledgers. No trading actions.
+-- Unified view of the existing purchase, posting and sales ledgers. No trading actions.
 local function scope(root)
     local key = GetRealmName().."_"..UnitFactionGroup("player")
     return type(root) == "table" and root[key] and root[key].records or {}
 end
 
 function Atr_GetTradingLogs(kind, query, days, character)
-    local result, spent, listed, boughtItems, listedItems = {}, 0, 0, 0, 0
+    local result, spent, listed, boughtItems, listedItems, earned, soldItems = {}, 0, 0, 0, 0, 0, 0
     query = string.lower(query or "")
     local cutoff = days and time() - days * 86400 or 0
     local function collect(records, recordKind)
@@ -14,26 +14,37 @@ function Atr_GetTradingLogs(kind, query, days, character)
             if record.when >= cutoff and (not character or record.character == character)
                 and (query == "" or string.find(string.lower(record.name), query, 1, true)) then
                 local stacks = record.stacks or 1
-                local quantity = record.stackSize * stacks
+                local size = record.stackSize or 1
+                local quantity = size * stacks
                 local total = record.stackPrice * stacks
                 result[#result + 1] = {
                     kind = recordKind, name = record.name, link = record.link, itemKey=record.itemKey,
-                    quantity = quantity, unit = record.stackPrice / record.stackSize,
+                    quantity = quantity, unit = record.stackPrice / size,
                     total = total, when = record.when, character = record.character,
-                    seller = record.seller, stacks = stacks, size = record.stackSize,
+                    seller = record.seller, buyer = record.buyer, stacks = stacks, size = size,
+                    deposit = record.deposit, consignment = record.consignment, net = record.net,
                 }
-                if recordKind == "Bought" then spent = spent + total; boughtItems = boughtItems + quantity
-                else listed = listed + total; listedItems = listedItems + quantity end
+                if recordKind == "Bought" then
+                    spent = spent + total
+                    boughtItems = boughtItems + quantity
+                elseif recordKind == "Listed" then
+                    listed = listed + total
+                    listedItems = listedItems + quantity
+                elseif recordKind == "Sold" then
+                    earned = earned + total
+                    soldItems = soldItems + quantity
+                end
             end
         end
     end
     collect(scope(AUCTIONATOR_PURCHASES), "Bought")
     collect(scope(AUCTIONATOR_OWN_AUCTIONS), "Listed")
+    collect(scope(AUCTIONATOR_SALES), "Sold")
     table.sort(result, function(a,b)
         if a.when == b.when then return a.name < b.name end
         return a.when > b.when
     end)
-    return result, spent, listed, boughtItems, listedItems
+    return result, spent, listed, boughtItems, listedItems, earned, soldItems
 end
 
 -- Sort display rows only; persistent ledgers and filtered totals are untouched.

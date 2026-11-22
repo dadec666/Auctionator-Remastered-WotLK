@@ -379,4 +379,14 @@ AtrL["Crafting Cost:"] = ""
 AtrL["Estimated Profit:"] = ""
 AtrL["Created shopping list '%s' with %d reagents."] = ""
 
+-- Sales & Trading Logs
+AtrL["Sold"] = "已售出"
+AtrL["Total Earned:"] = "總收入:"
+AtrL["Net Profit:"] = "淨利潤:"
+AtrL["Buyer:"] = "買家:"
+AtrL["Buyer"] = "買家"
+AtrL["Net:"] = "淨額:"
+AtrL["AH Cut:"] = "拍賣場手續費:"
+AtrL["Net received:"] = "實際入賬:"
+
 end
