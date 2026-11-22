@@ -560,6 +560,9 @@ local function UpdateStagedDisplay()
 end
 
 local function StageBagItem(item)
+    if InCombatLockdown and InCombatLockdown() then
+        return
+    end
     if not item or not item.slots or #item.slots == 0 then
         return
     end
