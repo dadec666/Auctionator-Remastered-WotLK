@@ -276,6 +276,7 @@ local function createWindow()
     }
     shoppingMenu=CreateFrame("Frame","Atr_BrowserShoppingMenu",UIParent,"UIDropDownMenuTemplate")
     UIDropDownMenu_Initialize(shoppingMenu,function(self,level)
+        if InCombatLockdown and InCombatLockdown() then return end
         level=level or 1
         if not shoppingItem then return end
         local function add(text,callback,disabled,arrow,title)
@@ -286,8 +287,8 @@ local function createWindow()
         end
         if level==1 then
             add(shoppingItem,nil,true,nil,true)
-            add("Add to shopping list",nil,nil,true)
-            add("Cancel",function() CloseDropDownMenus() end)
+            add(ZT and ZT("Add to shopping list") or "Add to shopping list",nil,nil,true)
+            add(ZT and ZT("Cancel") or "Cancel",function() CloseDropDownMenus() end)
         elseif level==2 then
             local itemName=shoppingItem
             for _,list in ipairs(AUCTIONATOR_SHOPPING_LISTS or {}) do
@@ -302,7 +303,7 @@ local function createWindow()
                     end,duplicate or full)
                 end
             end
-            add("New shopping list...",function()
+            add(ZT and ZT("New shopping list...") or "New shopping list...",function()
                 CloseDropDownMenus()
                 StaticPopup_Show("ATR_BROWSER_NEW_SHOPPING_LIST",nil,nil,itemName)
             end)
@@ -420,6 +421,7 @@ local function createWindow()
         row:SetScript("OnClick",function(self,mouseButton)
             search:ClearFocus()
             if mouseButton=="RightButton" and self.data then
+                if InCombatLockdown and InCombatLockdown() then return end
                 GameTooltip:Hide();CloseDropDownMenus()
                 shoppingItem=self.data.name
                 ToggleDropDownMenu(1,nil,shoppingMenu,"cursor",0,0)

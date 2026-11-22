@@ -192,7 +192,8 @@ local function makePanel()
         Atr_AnalysisSkin(b,'Button');b:SetSize(width,22);b:SetPoint('TOPLEFT',parent,'TOPLEFT',x,y)
         b:SetText(label);b:SetScript('OnClick',callback);return b
     end
-    local title=text('Deals',0,0,'GameFontNormal')
+    local function Z(s) return ZT and ZT(s) or s end
+    local title=text(Z('Deals'),0,0,'GameFontNormal')
     title:ClearAllPoints();title:SetPoint('TOP',panel,'TOP',0,-10)
     panel.results=CreateFrame('Frame',nil,panel)
     panel.results:SetFrameLevel(panel:GetFrameLevel())
@@ -212,7 +213,7 @@ local function makePanel()
         end
     end
     resultStyle()
-    local close=button('Atr_DealsCloseButton','Close',0,0,80,function() HideUIPanel(AuctionFrame) end)
+    local close=button('Atr_DealsCloseButton',Z('Close'),0,0,80,function() HideUIPanel(AuctionFrame) end)
     close:ClearAllPoints();close:SetPoint('BOTTOMRIGHT',panel,'BOTTOMRIGHT',-12,10)
 
     advanced=CreateFrame('Frame','Atr_DealsAdvanced',panel)
@@ -271,7 +272,7 @@ local function makePanel()
             if pendingDealsSearch<=0 then pendingDealsSearch=nil;refresh(true) end
         end
     end)
-    local settingsButton=button('Atr_DealsSettings','Settings',550,-48,100,function()
+    local settingsButton=button('Atr_DealsSettings',Z('Settings'),550,-48,100,function()
         search:ClearFocus()
         if advanced:IsShown() then advanced:Hide() else advanced:Show() end
     end)
@@ -282,7 +283,7 @@ local function makePanel()
         GameTooltip:Show()
     end)
     settingsButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
-    button('Atr_DealsClearSearch','Clear search',660,-48,110,function() pendingDealsSearch=nil;search:SetText('');search:ClearFocus();refresh(true) end)
+    button('Atr_DealsClearSearch',Z('Clear search'),660,-48,110,function() pendingDealsSearch=nil;search:SetText('');search:ClearFocus();refresh(true) end)
     text('Categories',20,-90)
     summary=text('',20,0,'GameFontHighlightSmall')
     summary:ClearAllPoints();summary:SetPoint('BOTTOMLEFT',panel,'BOTTOMLEFT',20,22)
@@ -409,7 +410,7 @@ AuctionatorRemastered.Legacy.Hook('Atr_Init',function()
     makePanel()
     local n=AuctionFrame.numTabs+1
     local tab=CreateFrame('Button','AuctionFrameTab'..n,AuctionFrame,'AuctionTabTemplate')
-    tab:SetID(n);tab:SetText('Deals');tab:SetNormalFontObject(AtrFontOrange)
+    tab:SetID(n);tab:SetText(ZT and ZT('Deals') or 'Deals');tab:SetNormalFontObject(AtrFontOrange)
     PanelTemplates_TabResize(tab,0)
     tab:SetPoint('LEFT',_G['AuctionFrameTab'..(n-1)],'RIGHT',-8,0)
     PanelTemplates_SetNumTabs(AuctionFrame,n);PanelTemplates_EnableTab(AuctionFrame,n)

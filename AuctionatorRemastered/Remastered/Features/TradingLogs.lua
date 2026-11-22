@@ -73,7 +73,7 @@ local function makePanel()
         font:SetPoint("TOPLEFT", panel, "TOPLEFT", x, y); font:SetText(label)
         return font
     end
-    local title=text("Trading logs",0,0,"GameFontNormal")
+    local title=text(ZT and ZT("Trading logs") or "Trading logs",0,0,"GameFontNormal")
     title:ClearAllPoints();title:SetPoint("TOP",panel,"TOP",0,-10)
     panel.results=CreateFrame("Frame",nil,panel)
     panel.results:SetFrameLevel(panel:GetFrameLevel())
@@ -217,7 +217,7 @@ AuctionatorRemastered.Legacy.Hook("Atr_Init", function()
     makePanel()
     local n = AuctionFrame.numTabs + 1
     logTab = CreateFrame("Button", "AuctionFrameTab"..n, AuctionFrame, "AuctionTabTemplate")
-    logTab:SetID(n); logTab:SetText("Logs")
+    logTab:SetID(n); logTab:SetText(ZT and ZT("Logs") or "Logs")
     logTab:SetNormalFontObject(AtrFontOrange)
     PanelTemplates_TabResize(logTab,0)
     logTab:SetPoint("LEFT", _G["AuctionFrameTab"..(n-1)], "RIGHT", -8, 0)

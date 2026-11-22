@@ -163,7 +163,7 @@ end)
 local options = Atr_ScanningOptionsFrame
 local windowLabel = options:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 windowLabel:SetPoint("TOPLEFT", options, "TOPLEFT", 30, -275)
-windowLabel:SetText("Market % comparison:")
+windowLabel:SetText(ZT and ZT("Market % comparison:") or "Market % comparison:")
 local dropdown = CreateFrame("Frame", "Atr_MarketHistoryDropdown", options, "UIDropDownMenuTemplate")
 dropdown:SetPoint("TOPLEFT", options, "TOPLEFT", 215, -265)
 UIDropDownMenu_SetWidth(dropdown, 110)
@@ -172,6 +172,7 @@ note:SetPoint("TOPLEFT", options, "TOPLEFT", 30, -310)
 note:SetWidth(370); note:SetJustifyH("LEFT")
 note:SetText("Median of daily scan medians, excluding today. Older days use daily lows. * = fewer than 3 history days. Changes apply immediately.")
 UIDropDownMenu_Initialize(dropdown, function()
+    if InCombatLockdown and InCombatLockdown() then return end
     for _, days in ipairs(marketWindows) do
         local selectedDays = days
         local info = UIDropDownMenu_CreateInfo()
@@ -179,6 +180,7 @@ UIDropDownMenu_Initialize(dropdown, function()
         info.value = days
         info.checked = Atr_GetMarketHistoryDays() == days
         info.func = function()
+            if InCombatLockdown and InCombatLockdown() then return end
             AUCTIONATOR_MARKET_HISTORY_DAYS = selectedDays
             UIDropDownMenu_SetSelectedValue(dropdown, selectedDays)
             updateAuctionator()
@@ -188,6 +190,7 @@ UIDropDownMenu_Initialize(dropdown, function()
     end
 end)
 dropdown:SetScript("OnShow", function()
+    if InCombatLockdown and InCombatLockdown() then return end
     UIDropDownMenu_SetSelectedValue(dropdown, Atr_GetMarketHistoryDays())
 end)
 

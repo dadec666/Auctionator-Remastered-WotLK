@@ -1403,6 +1403,8 @@ function Atr_PrunePostDB()
 	local now = time();
 	local x = 0;
 	local total = 0;
+	local remaining = {};
+	local ATR_MAX_POST_HISTORY_ITEMS = 3000;
 
 	for itemName, info in pairs(AUCTIONATOR_PRICING_HISTORY) do
 
@@ -1424,9 +1426,21 @@ function Atr_PrunePostDB()
 		if (now - recentWhen > 180 * 86400) then
 			AUCTIONATOR_PRICING_HISTORY[itemName] = nil;
 			x = x + 1;
+		else
+			table.insert (remaining, { name = itemName, when = recentWhen });
 		end
 
 		total = total + 1;
+	end
+
+	-- Hard retention cap: keep at most ATR_MAX_POST_HISTORY_ITEMS
+	if (#remaining > ATR_MAX_POST_HISTORY_ITEMS) then
+		table.sort(remaining, function(a, b) return a.when < b.when end);
+		local excess = #remaining - ATR_MAX_POST_HISTORY_ITEMS;
+		for i = 1, excess do
+			AUCTIONATOR_PRICING_HISTORY[remaining[i].name] = nil;
+			x = x + 1;
+		end
 	end
 
 	if (x > 0) then

@@ -15,7 +15,7 @@ AtrL["SCAN_EXPLANATION"] = "Во время сканирование аукци�
 
 
 
-AtrL["%d of %d bought so far"] = "%d of %d bought so far"
+AtrL["%d of %d bought so far"] = "Куплено %d из %d"
 AtrL["Active Items"] = "Активные предметы"
 AtrL["Add Item To List"] = "Добавить предмет в список"
 AtrL["All Items"] = "Все предметы"
@@ -235,5 +235,28 @@ AtrL["Default Auctionator tab"] = "Окно по умолчанию"
 AtrL["Show auction house prices in tooltips"] = "Отображать в подсказках цену на аукционе"
 AtrL["Show disenchant prices in tooltips"] = "Отображать в подсказках стоимость распыления"
 AtrL["Show vendor prices in tooltips"] = "Отображать в подсказках цену у торговца"
+
+-- Remastered
+AtrL["Deals"] = "Сделки"
+AtrL["Trading Logs"] = "Журнал торговли"
+AtrL["Trading logs"] = "Журнал торговли"
+AtrL["Logs"] = "Журнал"
+AtrL["Browser"] = "Обозреватель"
+AtrL["Appearance"] = "Внешний вид"
+AtrL["Allow moving the auction window"] = "Разрешить перемещение окна аукциона"
+AtrL["Reset auction window"] = "Сбросить позицию аукциона"
+AtrL["Reset Deal details"] = "Сбросить детали сделки"
+AtrL["Market % comparison:"] = "Сравнение % рынка:"
+AtrL["Add to shopping list"] = "Добавить в список покупок"
+AtrL["New shopping list..."] = "Новый список покупок..."
+AtrL["The posted price is below vendor sell price"] = "Указанная цена ниже цены продажи торговцу"
+AtrL["The posted price is significantly below recent market value"] = "Указанная цена значительно ниже недавней рыночной стоимости"
+AtrL["Are you sure you want to post at this price?"] = "Вы уверены, что хотите выставить лот по этой цене?"
+AtrL["Window positions are saved automatically when you move or close the auction house."] = "Позиции окон сохраняются автоматически при перемещении или закрытии аукциона."
+AtrL["Drag the auction title to move AH. Drag Deal details to detach it from AH."] = "Перетащите заголовок аукциона для перемещения. Перетащите детали сделок для открепления."
+AtrL["Reset Deal details places it beside AH and makes it follow the auction window again."] = "Сброс деталей сделок размещает их рядом с аукционом и привязывает к нему."
+AtrL["Close"] = "Закрыть"
+AtrL["Settings"] = "Настройки"
+AtrL["Clear search"] = "Очистить поиск"
 
 end

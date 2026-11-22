@@ -714,4 +714,53 @@ check(filterFunc(nil, "CHAT_MSG_SYSTEM", "Auction cancelled.") == true, "Auction
 local passEvt, passMsg = filterFunc(nil, "CHAT_MSG_SYSTEM", "Random system message")
 check(passEvt == false and passMsg == "Random system message", "Other system messages pass through")
 
-print("PASS: " .. checks .. " comprehensive stability and critical audit checks passed")
+-- =========================================================================
+-- Phase 2 Secondary & Hardening Checks
+-- =========================================================================
+
+-- 1. Hard retention cap on AUCTIONATOR_PRICING_HISTORY (<= 3000)
+_G.AUCTIONATOR_PRICING_HISTORY = {}
+now = 100000000
+for i = 1, 3050 do
+    _G.AUCTIONATOR_PRICING_HISTORY["Item_" .. i] = {
+        ["is"] = i .. ":0:0",
+        [tostring(now - 1000 + i)] = "1000:1"
+    }
+end
+Atr_PrunePostDB()
+local countAfter = 0
+for _ in pairs(_G.AUCTIONATOR_PRICING_HISTORY) do
+    countAfter = countAfter + 1
+end
+check(countAfter == 3000, "Hard retention cap maintains exactly 3000 items (got: " .. countAfter .. ")")
+check(_G.AUCTIONATOR_PRICING_HISTORY["Item_1"] == nil, "Oldest item was pruned beyond 3000 limit")
+check(_G.AUCTIONATOR_PRICING_HISTORY["Item_3050"] ~= nil, "Newest item was preserved")
+
+-- 2. Conflict checker nil safety
+loadFunc("AuctionatorRemastered/Legacy/AuctionatorConflicts.lua", "Atr_Check_For_Conflicts", zcPrefix)
+local okConflict = pcall(function()
+    Atr_Check_For_Conflicts(nil)
+end)
+check(okConflict, "Atr_Check_For_Conflicts(nil) safely exits without error")
+
+-- 3. Combat Lockdown Guard on DropDowns
+_G.InCombatLockdown = function() return true end
+local ddInitedInCombat = false
+local mockDD = createMockWidget("MockDD")
+local origDDInit = _G.UIDropDownMenu_Initialize
+_G.UIDropDownMenu_Initialize = function() ddInitedInCombat = true end
+loadFunc("AuctionatorRemastered/Legacy/AuctionatorConfig.lua", "Atr_Opt_Deftab_OnShow", zcPrefix)
+Atr_Opt_Deftab_OnShow(mockDD)
+check(not ddInitedInCombat, "DropDown initialization blocked during InCombatLockdown")
+_G.InCombatLockdown = function() return false end
+_G.UIDropDownMenu_Initialize = origDDInit
+
+-- 4. Localization Parity (ruRU)
+dofile("AuctionatorRemastered/Locales/ruRU.lua")
+AtrBuildLTable_ruRU()
+check(AtrL["Deals"] == "Сделки", "ruRU translation for Deals")
+check(AtrL["Trading Logs"] == "Журнал торговли", "ruRU translation for Trading Logs")
+check(AtrL["Appearance"] == "Внешний вид", "ruRU translation for Appearance")
+check(AtrL["%d of %d bought so far"] == "Куплено %d из %d", "ruRU translation for bought count")
+
+print("PASS: " .. checks .. " comprehensive stability and phase 1/2 audit checks passed")

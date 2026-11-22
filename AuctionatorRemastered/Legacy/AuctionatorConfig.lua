@@ -215,6 +215,8 @@ end
 
 function Atr_Opt_Deftab_OnShow(self)
 
+	if (InCombatLockdown and InCombatLockdown()) then return; end
+
 	UIDropDownMenu_Initialize		(self, Atr_Opt_Deftab_Initialize);
 	UIDropDownMenu_SetSelectedValue	(self, AUCTIONATOR_DEFTAB);
 	UIDropDownMenu_JustifyText		(self, "LEFT");
@@ -235,6 +237,8 @@ end
 
 function Atr_Opt_TipsShift_OnShow(self)
 
+	if (InCombatLockdown and InCombatLockdown()) then return; end
+
 	UIDropDownMenu_Initialize		(self, Atr_tipsShiftDD_Initialize);
 	UIDropDownMenu_SetSelectedValue	(self, AUCTIONATOR_SHIFT_TIPS);
 	UIDropDownMenu_JustifyText		(self, "LEFT");
@@ -251,6 +255,8 @@ end
 -----------------------------------------
 
 function Atr_Opt_deDetails_OnShow(self)
+
+	if (InCombatLockdown and InCombatLockdown()) then return; end
 
 	UIDropDownMenu_Initialize		(self, Atr_deDetailsDD_Initialize);
 	UIDropDownMenu_SetSelectedValue	(self, AUCTIONATOR_DE_DETAILS_TIPS);
@@ -630,6 +636,8 @@ end
 
 function Atr_SONumStacks_OnShow(self)
 
+	if (InCombatLockdown and InCombatLockdown()) then return; end
+
 	UIDropDownMenu_Initialize		(self, Atr_SONumStacks_Initialize);
 	UIDropDownMenu_JustifyText		(self, "CENTER");
 	UIDropDownMenu_SetWidth			(self, 150);
@@ -765,6 +773,8 @@ end
 -----------------------------------------
 
 function Atr_ScanLevel_OnShow(self)
+
+	if (InCombatLockdown and InCombatLockdown()) then return; end
 
 	UIDropDownMenu_Initialize		(self, Atr_scanLevelDD_Initialize);
 	UIDropDownMenu_SetSelectedValue	(self, AUCTIONATOR_SCAN_MINLEVEL);
