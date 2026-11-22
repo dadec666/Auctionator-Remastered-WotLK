@@ -290,7 +290,9 @@ local function RecalculateCart()
 
 	if selectedListing.yours then
 		if unitPriceVal then
-			unitPriceVal:SetText(money(selectedListing.unitPrice or math.floor(selectedListing.buyoutPrice / selectedListing.stackSize)))
+			unitPriceVal:SetText(
+				money(selectedListing.unitPrice or math.floor(selectedListing.buyoutPrice / selectedListing.stackSize))
+			)
 		end
 		if totalCostVal then
 			totalCostVal:SetText("--")
@@ -558,7 +560,8 @@ local function ExecutePurchase()
 
 	local numToBuy = GetSelectedQuantity()
 	local numStacks = math.max(1, math.floor(numToBuy / math.max(1, selectedListing.stackSize or 1)))
-	local unitCost = selectedListing.unitPrice or math.floor((selectedListing.buyoutPrice or 0) / math.max(1, selectedListing.stackSize or 1))
+	local unitCost = selectedListing.unitPrice
+		or math.floor((selectedListing.buyoutPrice or 0) / math.max(1, selectedListing.stackSize or 1))
 	local totalCost = unitCost * numToBuy
 	local myMoney = (GetMoney and GetMoney()) or 0
 
@@ -646,10 +649,10 @@ local function MakeBuyTerminal()
 
 	-- Category Filter Pills: [Все] [Реагенты] [Шмот] [Расходники]
 	local cats = {
-		{ id = "ALL", label = Z("All"), width = 48 },
+		{ id = "ALL", label = Z("All"), width = 34 },
 		{ id = "TRADE", label = Z("Trade Goods"), width = 58 },
-		{ id = "EQUIP", label = Z("Equipment"), width = 48 },
-		{ id = "CONSUMABLE", label = Z("Consumables"), width = 56 },
+		{ id = "EQUIP", label = Z("Equipment"), width = 64 },
+		{ id = "CONSUMABLE", label = Z("Consumables"), width = 64 },
 	}
 	local prevCat = nil
 	for _, cat in ipairs(cats) do
@@ -657,7 +660,7 @@ local function MakeBuyTerminal()
 		Atr_AnalysisSkin(btn, "Button")
 		btn:SetSize(cat.width, 20)
 		if not prevCat then
-			btn:SetPoint("TOPLEFT", panel.sidebar, "TOPLEFT", 8, -32)
+			btn:SetPoint("TOPLEFT", panel.sidebar, "TOPLEFT", 4, -32)
 		else
 			btn:SetPoint("LEFT", prevCat, "RIGHT", 3, 0)
 		end
@@ -777,6 +780,9 @@ local function MakeBuyTerminal()
 	stagedDetails:SetPoint("TOPLEFT", stagedIcon, "TOPRIGHT", 10, -20)
 	stagedDetails:SetPoint("TOPRIGHT", panel.staging, "TOPRIGHT", -10, -20)
 	stagedDetails:SetJustifyH("LEFT")
+	if stagedDetails.SetWordWrap then
+		stagedDetails:SetWordWrap(true)
+	end
 	stagedDetails:SetText(Z("Select an item from the left sidebar to start buying"))
 
 	stagedAvailable = panel.staging:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
@@ -807,17 +813,19 @@ local function MakeBuyTerminal()
 
 	-- Quick Quantity Buttons
 	local qtyPresets = {
-		{ label = "1 " .. Z("Item"), mode = "1", width = 86 },
-		{ label = "1 " .. Z("Stacks:"), mode = "stack", width = 86 },
+		{ label = Z("1 Item"), mode = "1", width = 86 },
+		{ label = Z("1 Stack"), mode = "stack", width = 86 },
 		{ label = Z("Buy All"), mode = "all", width = 86 },
 	}
 	local prevQtyBtn = nil
+	local firstQtyBtn = nil
 	for _, q in ipairs(qtyPresets) do
 		local b = CreateFrame("Button", nil, panel.staging, "UIPanelButtonTemplate")
 		Atr_AnalysisSkin(b, "Button")
 		b:SetSize(q.width, 22)
 		if not prevQtyBtn then
 			b:SetPoint("TOPLEFT", refContainer, "BOTTOMLEFT", 0, -10)
+			firstQtyBtn = b
 		else
 			b:SetPoint("LEFT", prevQtyBtn, "RIGHT", 5, 0)
 		end
@@ -845,7 +853,7 @@ local function MakeBuyTerminal()
 
 	-- Quantity Inputs
 	local qtyLabel = panel.staging:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	qtyLabel:SetPoint("TOPLEFT", prevQtyBtn, "BOTTOMLEFT", 0, -10)
+	qtyLabel:SetPoint("TOPLEFT", firstQtyBtn, "BOTTOMLEFT", 0, -10)
 	qtyLabel:SetText(Z("Quantity") .. " (" .. Z("Per Item") .. " / " .. Z("Stacks:") .. "):")
 
 	numItemsEdit = CreateFrame("EditBox", "Atr_BuyNumItems", panel.staging, "InputBoxTemplate")
@@ -933,7 +941,7 @@ local function MakeBuyTerminal()
 	depthHeaderTitle:SetText(Z("Market Competitors"))
 
 	depthStatusBadge = panel.market:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	depthStatusBadge:SetPoint("TOPLEFT", depthHeaderTitle, "BOTTOMLEFT", 0, -4)
+	depthStatusBadge:SetPoint("LEFT", depthHeaderTitle, "RIGHT", 8, 0)
 	depthStatusBadge:SetText("|cff55aaff● " .. Z("No Competitors") .. "|r")
 
 	local refreshBtn = CreateFrame("Button", nil, panel.market, "UIPanelButtonTemplate")
@@ -949,7 +957,7 @@ local function MakeBuyTerminal()
 
 	-- Depth Table Headers
 	local thPrice = panel.market:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-	thPrice:SetPoint("TOPLEFT", panel.market, "TOPLEFT", 10, -42)
+	thPrice:SetPoint("TOPLEFT", panel.market, "TOPLEFT", 10, -38)
 	thPrice:SetText(Z("Unit Price"))
 
 	local thStacks = panel.market:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")

@@ -39,7 +39,7 @@ Atr_LoadOptionsSubPanel_NumCalls = 0;
 
 function Atr_LoadOptionsSubPanel (f, name, title, subtitle)
 
-	f.name		= name
+	f.name		= ZT(name);
 	f.parent	= "Auctionator";
 	f.cancel	= Atr_Options_Cancel;
 
@@ -52,9 +52,17 @@ function Atr_LoadOptionsSubPanel (f, name, title, subtitle)
 	if (title    == nil) then title = name; end
 	if (subtitle == nil) then subtitle = ""; end
 	
-	_G[frameName.."_ATitle"]:SetText (title);
-	_G[frameName.."_BTitle"]:SetText (subtitle);
+	if _G[frameName.."_ATitle"] then
+		_G[frameName.."_ATitle"]:SetText (ZT(title));
+	end
+	if _G[frameName.."_BTitle"] then
+		_G[frameName.."_BTitle"]:SetText (ZT(subtitle));
+	end
 	
+	if Atr_LocalizeChildText then
+		Atr_LocalizeChildText (f);
+	end
+
 	InterfaceOptions_AddCategory (f);
 
 	f:SetScript("OnShow", Atr_OptionsSubPanel_OnShow)
@@ -67,6 +75,10 @@ function Atr_OptionsSubPanel_OnShow (self)
 
 	self.atr_hasBeenShown = true;
 	
+	if Atr_LocalizeChildText then
+		Atr_LocalizeChildText (self);
+	end
+
 	if (self.atr_onShow) then
 		self.atr_onShow (self);
 	end
@@ -103,15 +115,15 @@ end
 
 function Atr_SetupOptionsFrame()
     local expText = "<html><body>"
-        .."<p>|cffffd100Auctionator Remastered by Nisho|r<br/>"
-        .."Based on Auctionator 3.1.5, created by Zirco (Thunderhorn US).</p>"
-        .."<p><br/>An updated Auctionator experience for World of Warcraft 3.3.5a.</p>"
-        .."<p><br/>|cffffd100Highlights|r<br/>"
-        .."Browse saved AH prices anywhere, with categories, favorites and price-history charts.<br/><br/>"
-        .."Compare prices with colored market percentages and clearer item tooltips.<br/><br/>"
-        .."Manage shared shopping lists and review purchase and auction-posting logs.<br/><br/>"
-        .."Explore database statistics and choose your price-history window.</p>"
-        .."<p><br/>|cffaaaaaaOriginal translation contributors: Ckaotik, StingerSoft, HellManiac, Kiskewl, Elfindor and Scars. Additional data credits: Norganna's AddOns.|r</p>"
+        .."<p>|cffffd100" .. ZT("Auctionator Remastered by Nisho") .. "|r<br/>"
+        .. ZT("Based on Auctionator 3.1.5, created by Zirco (Thunderhorn US).") .. "</p>"
+        .."<p><br/>" .. ZT("An updated Auctionator experience for World of Warcraft 3.3.5a.") .. "</p>"
+        .."<p><br/>|cffffd100" .. ZT("Highlights") .. "|r<br/>"
+        .. ZT("Browse saved AH prices anywhere, with categories, favorites and price-history charts.") .. "<br/><br/>"
+        .. ZT("Compare prices with colored market percentages and clearer item tooltips.") .. "<br/><br/>"
+        .. ZT("Manage shared shopping lists and review purchase and auction-posting logs.") .. "<br/><br/>"
+        .. ZT("Explore database statistics and choose your price-history window.") .. "</p>"
+        .."<p><br/>|cffaaaaaa" .. ZT("Original translation contributors: Ckaotik, StingerSoft, HellManiac, Kiskewl, Elfindor and Scars. Additional data credits: Norganna's AddOns.") .. "|r</p>"
         .."</body></html>";
     AuctionatorDescriptionHTML:SetText(expText);
     AuctionatorDescriptionHTML:SetSpacing(3);

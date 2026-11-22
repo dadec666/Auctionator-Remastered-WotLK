@@ -62,7 +62,7 @@ local Atr_excludes = { Cancel=1, Okay=1, Done=1, Close=1 }
 
 -----------------------------------------
 
-local function Atr_LocalizeChildText (frame)
+function Atr_LocalizeChildText (frame)
 
 	local child;
 	local subregions = { frame:GetRegions() };
@@ -118,7 +118,8 @@ function Atr_LocalizeFrames ()
 		local fname		= frame:GetName();
 		local pname		= (frame:GetParent() and frame:GetParent():GetName() or nil);
 		
-		local isAuctionatorFrame = (zc.StringStartsWith (fname, "Atr") or zc.StringStartsWith (fname, "Auctionator")) and zc.StringSame (pname, "UIParent");
+		local isAuctionatorFrame = (zc.StringStartsWith (fname, "Atr") or zc.StringStartsWith (fname, "Auctionator")) and
+			(pname == nil or zc.StringSame (pname, "UIParent") or zc.StringSame (pname, "InterfaceOptionsFramePanelContainer") or zc.StringSame (pname, "InterfaceOptionsFrame") or (frame.parent and zc.StringSame(frame.parent, "Auctionator")));
 		if (fname == "Atr_Main_Panel") then
 			isAuctionatorFrame = true;
 		end

@@ -114,6 +114,9 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		mover:EnableMouse(enabled)
 	end)
 	appearance:SetScript("OnShow", function()
+		if Atr_LocalizeChildText then
+			Atr_LocalizeChildText(appearance)
+		end
 		choice:SetChecked(AUCTIONATOR_SAVEDVARS.moveAuctionFrame ~= false)
 		if Atr_ModernSellToggle then
 			Atr_ModernSellToggle:SetChecked(AUCTIONATOR_SAVEDVARS.modernSell ~= false)
@@ -225,7 +228,7 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		42
 	)
 	text(
-		"Changes apply immediately. Shopping lists, prices and scan data are kept.",
+		Z("Changes apply immediately. Shopping lists, prices and scan data are kept."),
 		20,
 		-420,
 		"GameFontDisableSmall",

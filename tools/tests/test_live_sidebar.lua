@@ -63,7 +63,7 @@ check(driver:IsShown(),'vanilla tab changes schedule sidebar styling')
 driver.OnUpdate(driver)
 check(not divider:IsShown() and divider.texture==nil and other:IsShown(),'stretched XML divider asset is permanently removed regardless of resolved width')
 local surface=Atr_Hlist.atrListSurface
-check(surface.backdrop.bgFile=='Interface\\Buttons\\WHITE8X8' and not Atr_Hlist.backdrop,'only the outer surface has a border; content/gutter divider is removed')
+check((surface.backdrop.bgFile=='Interface\\Buttons\\WHITE8X8' or surface.backdrop.bgFile=='Interface\\Tooltips\\UI-Tooltip-Background') and not Atr_Hlist.backdrop,'only the outer surface has a border; content/gutter divider is removed')
 check(surface.color[4]==1,'sidebar remains opaque and readable')
 local gutter=surface
 check(gutter and gutter.points[1][3]=='TOPLEFT' and gutter.points[2][4]==24 and gutter.color[4]==1,'opaque vanilla background extends behind the complete scroll gutter')

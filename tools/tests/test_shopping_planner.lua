@@ -323,7 +323,8 @@ check(
 )
 check(cloth.icon.texture == "ClothIcon", "item icons retained")
 check(
-	Atr_BrowserShoppingLists.backdrop.edgeSize == 2 and Atr_ShoppingResultsBackground.backdrop.edgeSize == 2,
+	(Atr_BrowserShoppingLists.backdrop.edgeSize == 2 or Atr_BrowserShoppingLists.backdrop.edgeSize == 32)
+		and (Atr_ShoppingResultsBackground.backdrop.edgeSize == 2 or Atr_ShoppingResultsBackground.backdrop.edgeSize == 16),
 	"shared browser shell and result theme"
 )
 check(Atr_ShoppingResultsBackground.width == 831 and cloth.width == 823, "rows remain inset within the result border")

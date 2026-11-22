@@ -1222,7 +1222,7 @@ function Atr_Init()
 
 	gShopPane	= Atr_AddSellTab (ZT("Buy"),			BUY_TAB);
 	gSellPane	= Atr_AddSellTab (ZT("Sell"),			SELL_TAB);
-	gMorePane	= Atr_AddSellTab ("Undercuts",	MORE_TAB);
+	gMorePane	= Atr_AddSellTab (ZT("Undercuts"),	MORE_TAB);
 
 	Atr_AddMainPanel ();
 
@@ -1418,7 +1418,7 @@ function Atr_AuctionFrameTab_OnClick (self, index, down)
 
 		if (index == Atr_FindTabIndex(SELL_TAB))	then AuctionatorTitle:SetText ("Auctionator Remastered - "..ZT("Sell"));			end;
 		if (index == Atr_FindTabIndex(BUY_TAB))		then AuctionatorTitle:SetText ("Auctionator Remastered - "..ZT("Buy"));			end;
-		if (index == Atr_FindTabIndex(MORE_TAB))	then AuctionatorTitle:SetText ("Auctionator Remastered - Undercuts");	end;
+		if (index == Atr_FindTabIndex(MORE_TAB))	then AuctionatorTitle:SetText ("Auctionator Remastered - "..ZT("Undercuts"));	end;
 
 		Atr_ClearHlist();
 		Atr_SellControls:Hide();

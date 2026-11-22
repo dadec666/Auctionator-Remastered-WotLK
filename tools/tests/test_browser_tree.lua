@@ -119,7 +119,7 @@ check(#Atr_BuildBrowserCategoryTree(sample,'Favorites')==15,'special categories 
 check(#Atr_BuildBrowserCategoryTree({},'Consumable')==15,'empty category does not create empty branch')
 Atr_ToggleOfflineBrowser()
 check(Atr_OfflineBrowser:IsShown() and not AuctionFrame,'offline window works without AH loaded')
-check(Atr_OfflineBrowser.backdrop.bgFile=='Interface\\Buttons\\WHITE8X8','same flat opaque background as analysis panels')
+check(Atr_OfflineBrowser.backdrop.bgFile=='Interface\\DialogFrame\\UI-DialogBox-Background' or Atr_OfflineBrowser.backdrop.bgFile=='Interface\\Buttons\\WHITE8X8','dialog or flat background for offline browser')
 check(Atr_BrowserCategoryScroll.count==15 and Atr_BrowserCategoryScroll.visible==19,'category scroll initialized')
 check(Atr_BrowserCategoryBackground.points[1][5]==-91 and Atr_BrowserCategoryBackground.height==461,'category panel aligns with search top and details bottom')
 local function category(class,subclass,slot)

@@ -1,7 +1,9 @@
 dofile("AuctionatorRemastered/Remastered/Core/Bootstrap.lua")
 dofile("AuctionatorRemastered/Remastered/Integration/LegacyBridge.lua")
 local f=assert(io.open('AuctionatorRemastered/Remastered/UI/Launcher.lua'));local s=f:read('*a');f:close()
-assert(loadstring(s:sub(assert(s:find('local minimapShapes=',1,true)),assert(s:find('local function positionIcon',1,true))-1)))()
+local shapesStart = assert(s:find("local minimapShapes%s*="))
+local posStart = assert(s:find("local function positionIcon", shapesStart, true))
+assert(loadstring(s:sub(shapesStart, posStart - 1)))()
 local checks=0
 local function check(v,msg) checks=checks+1;assert(v,msg) end
 for _,size in ipairs({{140,140},{220,160},{80,180}}) do

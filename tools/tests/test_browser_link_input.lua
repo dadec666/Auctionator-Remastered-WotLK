@@ -76,8 +76,8 @@ check(ContainerFrameItemButton_OnModifiedClick(earlySlot,'LeftButton')==true and
 GetCurrentKeyboardFocus=function() return otherInput end
 check(not Atr_InsertBrowserSearchLink(GetTradeSkillItemLink()),'visible Logs does not steal an active chat or other edit box')
 GetCurrentKeyboardFocus=nil;logsVisible=false;shown=true;focused=true
-local updateStart=assert(browser:find('    local wasMouseDown = false',1,true))
-local updateEnd=assert(browser:find('    window:SetScript("OnHide"',updateStart,true))
+local updateStart = assert(browser:find("local wasMouseDown = false"))
+local updateEnd = assert(browser:find('window:SetScript%("OnHide"', updateStart))
 assert(loadstring('return function(window,search)\n'..browser:sub(updateStart,updateEnd-1)..'\nend'))()(window,search)
 mouse=true;window.scripts.OnUpdate();check(focused,'shift-click outside preserves search focus until link insertion')
 mouse=false;window.scripts.OnUpdate();shift=false;mouse=true;window.scripts.OnUpdate()
