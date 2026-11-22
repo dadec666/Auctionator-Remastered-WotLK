@@ -19,7 +19,17 @@ end
 
 function Service.Open()
     if Service.failed then return nil end
-    if AUCTIONATOR_REMASTERED_DATABASE==nil then AUCTIONATOR_REMASTERED_DATABASE=DB.New() end
+    local restoredFromBackup = false
+    if AUCTIONATOR_REMASTERED_DATABASE==nil then
+        if type(AUCTIONATOR_REMASTERED_DATABASE_BAK)=="table"
+            and AUCTIONATOR_REMASTERED_DATABASE_BAK.schemaVersion==DB.VERSION
+            and DB.Validate(AUCTIONATOR_REMASTERED_DATABASE_BAK) then
+            AUCTIONATOR_REMASTERED_DATABASE=DB.Clone(AUCTIONATOR_REMASTERED_DATABASE_BAK)
+            restoredFromBackup = true
+        else
+            AUCTIONATOR_REMASTERED_DATABASE=DB.New()
+        end
+    end
     local key=scope()
     local handle,reason=DB.Open(AUCTIONATOR_REMASTERED_DATABASE,key,locale())
     if not handle and reason~="Unsupported Remastered database version" then
@@ -28,10 +38,11 @@ function Service.Open()
             and DB.Validate(AUCTIONATOR_REMASTERED_DATABASE_BAK) then
             AUCTIONATOR_REMASTERED_DATABASE=DB.Clone(AUCTIONATOR_REMASTERED_DATABASE_BAK)
             handle,reason=DB.Open(AUCTIONATOR_REMASTERED_DATABASE,key,locale())
-            if handle and DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
-                DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Auctionator Remastered|r: Price database restored from backup after corruption.")
-            end
+            restoredFromBackup = handle ~= nil
         end
+    end
+    if restoredFromBackup and DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
+        DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Auctionator Remastered|r: Price database restored from backup.")
     end
     if not handle then Service.failed=reason;return nil,reason end
     Service.active=handle;handles[handle.view]=handle
@@ -282,7 +293,27 @@ end
 
 function Atr_DatabaseBackup()
     if AUCTIONATOR_REMASTERED_DATABASE and not Service.failed and DB.Validate(AUCTIONATOR_REMASTERED_DATABASE) then
-        AUCTIONATOR_REMASTERED_DATABASE_BAK = DB.Clone(AUCTIONATOR_REMASTERED_DATABASE)
+        local currentHasItems = false
+        if type(AUCTIONATOR_REMASTERED_DATABASE.markets) == "table" then
+            for _, m in pairs(AUCTIONATOR_REMASTERED_DATABASE.markets) do
+                if type(m.items) == "table" and next(m.items) ~= nil then
+                    currentHasItems = true
+                    break
+                end
+            end
+        end
+        local backupHasItems = false
+        if type(AUCTIONATOR_REMASTERED_DATABASE_BAK) == "table" and type(AUCTIONATOR_REMASTERED_DATABASE_BAK.markets) == "table" then
+            for _, m in pairs(AUCTIONATOR_REMASTERED_DATABASE_BAK.markets) do
+                if type(m.items) == "table" and next(m.items) ~= nil then
+                    backupHasItems = true
+                    break
+                end
+            end
+        end
+        if currentHasItems or not backupHasItems then
+            AUCTIONATOR_REMASTERED_DATABASE_BAK = DB.Clone(AUCTIONATOR_REMASTERED_DATABASE)
+        end
     end
 end
 

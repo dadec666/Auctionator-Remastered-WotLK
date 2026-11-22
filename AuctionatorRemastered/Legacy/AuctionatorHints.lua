@@ -16,14 +16,18 @@ function auctionator_GameTooltip_OnTooltipAddMoney (self, cost, maxcost)
 		return;
 	end
 
-	auctionator_orig_GameTooltip_OnTooltipAddMoney (self, cost, maxcost);
+	if (auctionator_orig_GameTooltip_OnTooltipAddMoney) then
+		auctionator_orig_GameTooltip_OnTooltipAddMoney (self, cost, maxcost);
+	end
 end
 
 -----------------------------------------
 
 function Atr_Hook_OnTooltipAddMoney()
-	auctionator_orig_GameTooltip_OnTooltipAddMoney = GameTooltip_OnTooltipAddMoney;
-	GameTooltip_OnTooltipAddMoney = auctionator_GameTooltip_OnTooltipAddMoney;
+	if (not auctionator_orig_GameTooltip_OnTooltipAddMoney and GameTooltip_OnTooltipAddMoney) then
+		auctionator_orig_GameTooltip_OnTooltipAddMoney = GameTooltip_OnTooltipAddMoney;
+		GameTooltip_OnTooltipAddMoney = auctionator_GameTooltip_OnTooltipAddMoney;
+	end
 end
 
 ------------------------------------------------

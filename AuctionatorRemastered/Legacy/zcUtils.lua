@@ -1076,7 +1076,7 @@ function zc.printstack (options)
 
 				if (a) then
 					filename = string.sub (v,a+1,b-1);
-					filename = string.gsub (filename, "\.lua", "");
+					filename = string.gsub (filename, "%.lua", "");
 				end
 
 				local a,b = string.find (v, "in function `.*\'");

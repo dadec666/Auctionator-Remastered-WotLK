@@ -267,6 +267,24 @@ check(
 )
 check(AUCTIONATOR_REMASTERED_DATABASE.schemaVersion == 999, "Future database is preserved intact")
 
+-- 4b. Service.Open recovery when database is nil (simulating WTF file wipe on client crash)
+AUCTIONATOR_REMASTERED_DATABASE = nil
+AUCTIONATOR_REMASTERED_DATABASE_BAK = DB.Clone(originalDB)
+AuctionatorRemastered.Database.failed = nil
+AuctionatorRemastered.Database.active = nil
+local h3, r3 = AuctionatorRemastered.Database.Open()
+check(h3 ~= nil, "Nil database (crash wipe) successfully recovered from backup")
+check(AUCTIONATOR_REMASTERED_DATABASE.markets["TestRealm_Alliance"] ~= nil, "Restored database contains backup data")
+
+-- 4c. Atr_DatabaseBackup does not overwrite populated backup with empty database
+local emptyDB = DB.New()
+AUCTIONATOR_REMASTERED_DATABASE = emptyDB
+Atr_DatabaseBackup()
+check(
+    AUCTIONATOR_REMASTERED_DATABASE_BAK.markets["TestRealm_Alliance"] ~= nil,
+    "Empty database does not overwrite populated backup"
+)
+
 -- =========================================================================
 -- Feature 6: Third-Party UI Sandbox (DragonUI & ElvUI)
 -- =========================================================================
@@ -596,4 +614,104 @@ dealsSearch.scripts.OnUpdate(dealsSearch, 0.25)
 _G.Atr_DealsClearSearch.scripts.OnClick()
 check(dealsSearch:GetText() == "", "Clear search resets editbox text")
 
-print("PASS: " .. checks .. " comprehensive stability checks across all 7 features")
+-- =========================================================================
+-- Phase 1 Critical Audit Fixes
+-- =========================================================================
+
+local function loadFunc(path, name, prefix)
+    local f = assert(io.open(path, "rb"))
+    local src = f:read("*a"):gsub("\r\n", "\n")
+    f:close()
+    local code = assert(src:match("(function%s+" .. name .. "%s*%b().-\nend)"), name)
+    assert(loadstring((prefix or "") .. "\n" .. code))()
+end
+
+local zcPrefix = "local zc = { StringSame = function(a, b) return a and b and tostring(a):lower() == tostring(b):lower() end, md = function() end }; "
+loadFunc("AuctionatorRemastered/Legacy/Auctionator.lua", "Atr_ContainerFrameItemButton_OnModifiedClick", zcPrefix)
+loadFunc("AuctionatorRemastered/Legacy/Auctionator.lua", "auctionator_ChatEdit_InsertLink", zcPrefix)
+loadFunc("AuctionatorRemastered/Legacy/Auctionator.lua", "auctionator_CanShowRightUIPanel", zcPrefix)
+loadFunc("AuctionatorRemastered/Legacy/Auctionator.lua", "auctionator_ChatMsgFilter", zcPrefix)
+loadFunc("AuctionatorRemastered/Legacy/Auctionator.lua", "Atr_SetupHookFunctions", zcPrefix)
+loadFunc("AuctionatorRemastered/Legacy/AuctionatorScan.lua", "Atr_PrunePostDB", zcPrefix)
+
+-- 1. AuctionFrame nil guard in bag button Alt-click
+local savedAuctionFrame = _G.AuctionFrame
+_G.AuctionFrame = nil
+_G.AUCTIONATOR_ENABLE_ALT = 1
+_G.IsAltKeyDown = function() return true end
+_G.IsShiftKeyDown = function() return false end
+local origContainerClickCalled = false
+_G.auctionator_orig_ContainerFrameItemButton_OnModifiedClick = function()
+    origContainerClickCalled = true
+end
+local mockBtn = createMockWidget("BagBtn")
+local okAltClick, errAltClick = pcall(function()
+    Atr_ContainerFrameItemButton_OnModifiedClick(mockBtn, "LeftButton")
+end)
+check(okAltClick, "Container modified click with Alt does not error when AuctionFrame is nil: " .. tostring(errAltClick))
+check(origContainerClickCalled, "Falls back to original container modified click")
+
+-- 2. Chat link insert when AuctionFrame is nil
+_G.IsShiftKeyDown = function() return true end
+local origChatInsertCalled = false
+_G.auctionator_orig_ChatEdit_InsertLink = function(text)
+    origChatInsertCalled = true
+    return true
+end
+local okChatInsert, errChatInsert = pcall(function()
+    return auctionator_ChatEdit_InsertLink("|cffffffff|Hitem:1234:0:0:0|h[Test Item]|h|r")
+end)
+check(okChatInsert, "Chat link insert with Shift does not error when AuctionFrame is nil: " .. tostring(errChatInsert))
+check(origChatInsertCalled, "Falls back to original ChatEdit_InsertLink")
+
+_G.AuctionFrame = savedAuctionFrame
+
+-- 3. CanShowRightUIPanel nil and frame tests
+local okCanShowNil = pcall(function()
+    return auctionator_CanShowRightUIPanel(nil)
+end)
+check(okCanShowNil, "CanShowRightUIPanel(nil) does not throw nil error")
+
+local mockTradeSkill = createMockWidget("TradeSkillFrame")
+check(auctionator_CanShowRightUIPanel(mockTradeSkill) == 1, "CanShowRightUIPanel returns 1 for TradeSkillFrame")
+
+-- 4. Atr_PrunePostDB pruning directly without CopyDeep
+_G.ParseHist = function(tag, hist)
+    local when = tonumber(tag) or 0
+    return when, "hx", 100
+end
+now = 30000000 -- ~347 days
+_G.AUCTIONATOR_PRICING_HISTORY = {
+    ["Old Item"] = {
+        ["is"] = "100:0:0",
+        ["100"] = "5000:1" -- very old timestamp (>180 days ago relative to now=30000000)
+    },
+    ["Recent Item"] = {
+        ["is"] = "200:0:0",
+        [tostring(now)] = "8000:1" -- current timestamp
+    }
+}
+local okPrune, errPrune = pcall(function()
+    Atr_PrunePostDB()
+end)
+check(okPrune, "Atr_PrunePostDB runs without error: " .. tostring(errPrune))
+check(AUCTIONATOR_PRICING_HISTORY["Old Item"] == nil, "Expired item pruned from history")
+check(AUCTIONATOR_PRICING_HISTORY["Recent Item"] ~= nil, "Recent item kept in history")
+
+-- 5. Chat filter absorbing ERR_AUCTION_STARTED / ERR_AUCTION_REMOVED
+_G.ERR_AUCTION_STARTED = "Auction created."
+_G.ERR_AUCTION_REMOVED = "Auction cancelled."
+local filterFunc = nil
+_G.ChatFrame_AddMessageEventFilter = function(evt, fn)
+    if evt == "CHAT_MSG_SYSTEM" then
+        filterFunc = fn
+    end
+end
+Atr_SetupHookFunctions()
+check(filterFunc ~= nil, "ChatFrame_AddMessageEventFilter was registered")
+check(filterFunc(nil, "CHAT_MSG_SYSTEM", "Auction created.") == true, "Auction created message absorbed")
+check(filterFunc(nil, "CHAT_MSG_SYSTEM", "Auction cancelled.") == true, "Auction cancelled message absorbed")
+local passEvt, passMsg = filterFunc(nil, "CHAT_MSG_SYSTEM", "Random system message")
+check(passEvt == false and passMsg == "Random system message", "Other system messages pass through")
+
+print("PASS: " .. checks .. " comprehensive stability and critical audit checks passed")

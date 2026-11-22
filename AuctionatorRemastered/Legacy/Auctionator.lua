@@ -217,25 +217,48 @@ end
 
 local auctionator_orig_GetAuctionItemInfo;
 
+function auctionator_ChatMsgFilter(self, event, msg, ...)
+	if (event == "CHAT_MSG_SYSTEM") then
+		if (msg == ERR_AUCTION_STARTED or msg == ERR_AUCTION_REMOVED) then
+			return true;
+		end
+	end
+	return false, msg, ...;
+end
+
 function Atr_SetupHookFunctions ()
 
-	auctionator_orig_AuctionFrameTab_OnClick = AuctionFrameTab_OnClick;
-	AuctionFrameTab_OnClick = Atr_AuctionFrameTab_OnClick;
+	if (not auctionator_orig_AuctionFrameTab_OnClick and AuctionFrameTab_OnClick) then
+		auctionator_orig_AuctionFrameTab_OnClick = AuctionFrameTab_OnClick;
+		AuctionFrameTab_OnClick = Atr_AuctionFrameTab_OnClick;
+	end
 
-	auctionator_orig_ContainerFrameItemButton_OnModifiedClick = ContainerFrameItemButton_OnModifiedClick;
-	ContainerFrameItemButton_OnModifiedClick = Atr_ContainerFrameItemButton_OnModifiedClick;
+	if (not auctionator_orig_ContainerFrameItemButton_OnModifiedClick and ContainerFrameItemButton_OnModifiedClick) then
+		auctionator_orig_ContainerFrameItemButton_OnModifiedClick = ContainerFrameItemButton_OnModifiedClick;
+		ContainerFrameItemButton_OnModifiedClick = Atr_ContainerFrameItemButton_OnModifiedClick;
+	end
 
-	auctionator_orig_AuctionFrameAuctions_Update = AuctionFrameAuctions_Update;
-	AuctionFrameAuctions_Update = Atr_AuctionFrameAuctions_Update;
+	if (not auctionator_orig_AuctionFrameAuctions_Update and AuctionFrameAuctions_Update) then
+		auctionator_orig_AuctionFrameAuctions_Update = AuctionFrameAuctions_Update;
+		AuctionFrameAuctions_Update = Atr_AuctionFrameAuctions_Update;
+	end
 
-	auctionator_orig_CanShowRightUIPanel = CanShowRightUIPanel;
-	CanShowRightUIPanel = auctionator_CanShowRightUIPanel;
+	if (not auctionator_orig_CanShowRightUIPanel and CanShowRightUIPanel) then
+		auctionator_orig_CanShowRightUIPanel = CanShowRightUIPanel;
+		CanShowRightUIPanel = auctionator_CanShowRightUIPanel;
+	end
 	
-	auctionator_orig_ChatEdit_InsertLink = ChatEdit_InsertLink;
-	ChatEdit_InsertLink = auctionator_ChatEdit_InsertLink;
+	if (not auctionator_orig_ChatEdit_InsertLink and ChatEdit_InsertLink) then
+		auctionator_orig_ChatEdit_InsertLink = ChatEdit_InsertLink;
+		ChatEdit_InsertLink = auctionator_ChatEdit_InsertLink;
+	end
 	
-	auctionator_orig_ChatFrame_OnEvent = ChatFrame_OnEvent;
-	ChatFrame_OnEvent = auctionator_ChatFrame_OnEvent;
+	if (ChatFrame_AddMessageEventFilter) then
+		ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", auctionator_ChatMsgFilter);
+	elseif (ChatFrame_OnEvent and not auctionator_orig_ChatFrame_OnEvent) then
+		auctionator_orig_ChatFrame_OnEvent = ChatFrame_OnEvent;
+		ChatFrame_OnEvent = auctionator_ChatFrame_OnEvent;
+	end
 
 end
 
@@ -1670,7 +1693,7 @@ function Atr_ContainerFrameItemButton_OnModifiedClick (self, button)
         return true;
     end
 
-	if (AUCTIONATOR_ENABLE_ALT ~= 0 and	AuctionFrame:IsShown() and IsAltKeyDown()) then
+	if (AUCTIONATOR_ENABLE_ALT ~= 0 and AuctionFrame and AuctionFrame:IsShown() and IsAltKeyDown()) then
 	
 		Atr_LoadContainerItemToSellPane(self);
 		return;
@@ -2009,7 +2032,7 @@ function auctionator_ChatEdit_InsertLink(text)
 
     if Atr_InsertBrowserSearchLink and Atr_InsertBrowserSearchLink(text) then return true end
 
-	if (text and AuctionFrame:IsShown() and IsShiftKeyDown() and Atr_IsTabSelected(BUY_TAB)) then	
+	if (text and AuctionFrame and AuctionFrame:IsShown() and IsShiftKeyDown() and Atr_IsTabSelected(BUY_TAB)) then	
 		local item;
 		if ( strfind(text, "item:", 1, true) ) then
 			item = GetItemInfo(text) or (type(text) == "string" and text:match("|h%[(.-)%]|h"));
@@ -2024,7 +2047,8 @@ function auctionator_ChatEdit_InsertLink(text)
 		end
 	end
 
-	return auctionator_orig_ChatEdit_InsertLink(text);
+	local insert = auctionator_orig_ChatEdit_InsertLink or ChatEdit_InsertLink;
+	return insert and insert(text);
 
 end
 
@@ -2043,7 +2067,9 @@ function auctionator_ChatFrame_OnEvent(self, event, ...)
 		end
 	end
 
-	return auctionator_orig_ChatFrame_OnEvent (self, event, ...);
+	if (auctionator_orig_ChatFrame_OnEvent) then
+		return auctionator_orig_ChatFrame_OnEvent (self, event, ...);
+	end
 
 end
 
@@ -2054,11 +2080,14 @@ end
 
 function auctionator_CanShowRightUIPanel(frame)
 
-	if (zc.StringSame (frame:GetName(), "TradeSkillFrame")) then
+	if (frame and frame.GetName and zc.StringSame (frame:GetName(), "TradeSkillFrame")) then
 		return 1;
 	end;
 
-	return auctionator_orig_CanShowRightUIPanel(frame);
+	if (auctionator_orig_CanShowRightUIPanel) then
+		return auctionator_orig_CanShowRightUIPanel(frame);
+	end
+	return 1;
 
 end
 
@@ -3436,7 +3465,7 @@ end
 
 function Atr_GetUCIcon (itemLink)
 
-	local icon = "|TInterface\\BUTTONS\\\UI-PassiveHighlight:18:18:0:0|t "
+	local icon = "|TInterface\\BUTTONS\\UI-PassiveHighlight:18:18:0:0|t "
 
 	local undercutFound = false;
 	
@@ -3450,9 +3479,9 @@ function Atr_GetUCIcon (itemLink)
 			icon = "|TInterface\\AddOns\\AuctionatorRemastered\\Images\\CrossAndCheck:18:18:0:0|t "
 			undercutFound = true;
 		elseif (scan.yourBestPrice <= absBestPrice) then
-			icon = "|TInterface\\RAIDFRAME\\\ReadyCheck-Ready:18:18:0:0|t "
+			icon = "|TInterface\\RAIDFRAME\\ReadyCheck-Ready:18:18:0:0|t "
 		else
-			icon = "|TInterface\\RAIDFRAME\\\ReadyCheck-NotReady:18:18:0:0|t "
+			icon = "|TInterface\\RAIDFRAME\\ReadyCheck-NotReady:18:18:0:0|t "
 			undercutFound = true;
 		end
 	end

@@ -1403,37 +1403,34 @@ function Atr_PrunePostDB()
 	local now = time();
 	local x = 0;
 	local total = 0;
-	
-	local tempDB = {};
-	zc.CopyDeep (tempDB, AUCTIONATOR_PRICING_HISTORY);
 
-	for itemName, info in pairs(tempDB) do
+	for itemName, info in pairs(AUCTIONATOR_PRICING_HISTORY) do
 
 		local recentWhen = 0;
 		local tag, hist;
-		
-		for tag, hist in pairs (info) do
-			if (tag ~= "is") then
-				local when, type, price = ParseHist (tag, hist);
 
-				if (when > recentWhen) then
-					recentWhen  = when;
+		if (type(info) == "table") then
+			for tag, hist in pairs (info) do
+				if (tag ~= "is") then
+					local when, type, price = ParseHist (tag, hist);
+
+					if (when and when > recentWhen) then
+						recentWhen = when;
+					end
 				end
 			end
 		end
-		
+
 		if (now - recentWhen > 180 * 86400) then
 			AUCTIONATOR_PRICING_HISTORY[itemName] = nil;
-			--zc.md (itemName, "   ", date("%A, %B %d %Y", recentWhen));
 			x = x + 1;
 		end
-		
+
 		total = total + 1;
 	end
-	
-	collectgarbage  ("collect");
-	
+
 	if (x > 0) then
+		collectgarbage("step", 50);
 		zc.md (x, "of", total, "items pruned from post DB");
 	end
 end

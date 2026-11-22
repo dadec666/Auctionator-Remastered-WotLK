@@ -6,11 +6,10 @@ function Atr_ShowFullScanFrame()
 	Atr_FullScanHTML:Show();
 	Atr_FullScanResults:Hide();
 	
-	
-	local AHLeft = AuctionFrame:GetLeft()
-	local AHTop = AuctionFrame:GetTop()
-	Atr_Mask:SetPoint("TOPLEFT", "AuctionFrame", "TOPLEFT", 12, 0)
-	Atr_FullScanFrame:SetPoint("TOPLEFT", "Atr_Mask", "TOPLEFT", 140, -24)
+	if (AuctionFrame and Atr_Mask and Atr_FullScanFrame) then
+		Atr_Mask:SetPoint("TOPLEFT", AuctionFrame, "TOPLEFT", 12, 0)
+		Atr_FullScanFrame:SetPoint("TOPLEFT", Atr_Mask, "TOPLEFT", 140, -24)
+	end
 	
 	Atr_FullScanFrame:Show();
 	Atr_FullScanFrame:SetBackdropColor(0,0,0,100);
