@@ -332,4 +332,26 @@ AtrL["%d%% below market reference (%s)"] = "На %d%% ниже рыночной 
 AtrL["Bait price detected! Undercutting legitimate market price instead."] = "Обнаружен аномальный демпинг! Выставлена цена относительно реального рынка."
 AtrL["Enable Bait / Sniper trap protection (ignore extreme undercuts)"] = "Защита от ловушек снайперов (игнорировать фиктивный демпинг)"
 
+
+-- Cancelling Terminal
+AtrL["Active Auctions & Cancelling"] = "Активные лоты и отмена"
+AtrL["Active Lots"] = "Активных лотов"
+AtrL["Undercuts"] = "Перебитые"
+AtrL["Total Value"] = "Общая стоимость"
+AtrL["Scanning active auctions..."] = "Сканирование активных лотов..."
+AtrL["Cancel Undercut (%d)"] = "Отменить перебитые (%d)"
+AtrL["Cancel Undercuts"] = "Отменить перебитые"
+AtrL["Check Undercuts"] = "Проверить перебитые"
+AtrL["Time Left"] = "Осталось времени"
+AtrL["Current Bid"] = "Текущая ставка"
+AtrL["Market Status"] = "Статус рынка"
+AtrL["Action"] = "Действие"
+AtrL["Sold / Pending"] = "Продано / Ожидание"
+AtrL["Undercut (-%d%%)"] = "Перебит (-%d%%)"
+AtrL["Not Scanned"] = "Не проверен"
+AtrL["Cannot cancel auctions during combat."] = "Нельзя отменять аукционы во время боя."
+AtrL["Canceled %d undercut auctions."] = "Отменено %d перебитых лотов."
+AtrL["Use modern Cancelling terminal (Undercuts tab)"] = "Современная вкладка отмены (вкладка Перебитые)"
+AtrL["Switch between modern terminals and the classic 2008 tabs."] = "Переключение между современными терминалами и классическими вкладками 2008 года."
+
 end

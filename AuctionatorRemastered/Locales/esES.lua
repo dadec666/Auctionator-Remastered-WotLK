@@ -320,4 +320,26 @@ AtrL["%d%% below market reference (%s)"] = ""
 AtrL["Bait price detected! Undercutting legitimate market price instead."] = ""
 AtrL["Enable Bait / Sniper trap protection (ignore extreme undercuts)"] = ""
 
+
+-- Cancelling Terminal
+AtrL["Active Auctions & Cancelling"] = ""
+AtrL["Active Lots"] = ""
+AtrL["Undercuts"] = ""
+AtrL["Total Value"] = ""
+AtrL["Scanning active auctions..."] = ""
+AtrL["Cancel Undercut (%d)"] = ""
+AtrL["Cancel Undercuts"] = ""
+AtrL["Check Undercuts"] = ""
+AtrL["Time Left"] = ""
+AtrL["Current Bid"] = ""
+AtrL["Market Status"] = ""
+AtrL["Action"] = ""
+AtrL["Sold / Pending"] = ""
+AtrL["Undercut (-%d%%)"] = ""
+AtrL["Not Scanned"] = ""
+AtrL["Cannot cancel auctions during combat."] = ""
+AtrL["Canceled %d undercut auctions."] = ""
+AtrL["Use modern Cancelling terminal (Undercuts tab)"] = ""
+AtrL["Switch between modern terminals and the classic 2008 tabs."] = ""
+
 end

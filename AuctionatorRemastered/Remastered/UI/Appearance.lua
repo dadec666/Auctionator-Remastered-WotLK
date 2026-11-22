@@ -121,6 +121,9 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		if Atr_ModernBuyToggle then
 			Atr_ModernBuyToggle:SetChecked(AUCTIONATOR_SAVEDVARS.modernBuy ~= false)
 		end
+		if Atr_ModernCancellingToggle then
+			Atr_ModernCancellingToggle:SetChecked(AUCTIONATOR_SAVEDVARS.modernCancelling ~= false)
+		end
 		if Atr_BaitGuardToggle then
 			Atr_BaitGuardToggle:SetChecked(AUCTIONATOR_SAVEDVARS.baitProtection ~= false)
 		end
@@ -160,10 +163,24 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		end
 	end)
 
+	local modernCancellingChoice =
+		CreateFrame("CheckButton", "Atr_ModernCancellingToggle", appearance, "UICheckButtonTemplate")
+	Atr_AnalysisSkin(modernCancellingChoice, "CheckBox")
+	modernCancellingChoice:SetSize(24, 24)
+	modernCancellingChoice:SetPoint("TOPLEFT", appearance, "TOPLEFT", 16, -210)
+	_G[modernCancellingChoice:GetName() .. "Text"]:SetText(Z("Use modern Cancelling terminal (Undercuts tab)"))
+	modernCancellingChoice:SetScript("OnClick", function(self)
+		local enabled = self:GetChecked() and true or false
+		AUCTIONATOR_SAVEDVARS.modernCancelling = enabled
+		if Atr_UpdateCancellingTabVisibility then
+			Atr_UpdateCancellingTabVisibility()
+		end
+	end)
+
 	local baitGuardChoice = CreateFrame("CheckButton", "Atr_BaitGuardToggle", appearance, "UICheckButtonTemplate")
 	Atr_AnalysisSkin(baitGuardChoice, "CheckBox")
 	baitGuardChoice:SetSize(24, 24)
-	baitGuardChoice:SetPoint("TOPLEFT", appearance, "TOPLEFT", 16, -210)
+	baitGuardChoice:SetPoint("TOPLEFT", appearance, "TOPLEFT", 16, -240)
 	_G[baitGuardChoice:GetName() .. "Text"]:SetText(
 		Z("Enable Bait / Sniper trap protection (ignore extreme undercuts)")
 	)
@@ -171,14 +188,7 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		local enabled = self:GetChecked() and true or false
 		AUCTIONATOR_SAVEDVARS.baitProtection = enabled
 	end)
-	text(
-		Z("Switch between modern 3-column terminals and the classic 2008 tabs."),
-		20,
-		-240,
-		"GameFontHighlightSmall",
-		550,
-		24
-	)
+	text(Z("Switch between modern terminals and the classic 2008 tabs."), 20, -270, "GameFontHighlightSmall", 550, 24)
 
 	local function button(name, label, y, callback)
 		local b = CreateFrame("Button", name, appearance, "UIPanelButtonTemplate")
@@ -188,12 +198,12 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 		b:SetText(label)
 		b:SetScript("OnClick", callback)
 	end
-	button("Atr_ResetAuctionPosition", Z("Reset auction window"), -270, resetAuctionPosition)
-	button("Atr_ResetDetailsPosition", Z("Reset Deal details"), -305, resetDetailsPosition)
+	button("Atr_ResetAuctionPosition", Z("Reset auction window"), -300, resetAuctionPosition)
+	button("Atr_ResetDetailsPosition", Z("Reset Deal details"), -335, resetDetailsPosition)
 	text(
 		Z("Reset Deal details places it beside AH and makes it follow the auction window again."),
 		236,
-		-305,
+		-335,
 		"GameFontHighlightSmall",
 		310,
 		42
@@ -201,7 +211,7 @@ function AuctionatorRemastered.UI.SetupAppearance(mover, positionDetails, settin
 	text(
 		"Changes apply immediately. Shopping lists, prices and scan data are kept.",
 		20,
-		-360,
+		-390,
 		"GameFontDisableSmall",
 		550,
 		30

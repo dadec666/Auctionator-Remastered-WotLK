@@ -1068,7 +1068,7 @@ function Atr_UpdateBuyTabVisibility()
 	end
 
 	local useModern = (AUCTIONATOR_SAVEDVARS and AUCTIONATOR_SAVEDVARS.modernBuy ~= false)
-	local isBuyTab = (Atr_IsTabSelected and Atr_IsTabSelected(2)) -- BUY_TAB is 2
+	local isBuyTab = (Atr_IsTabSelected and Atr_IsTabSelected(3)) -- BUY_TAB is 3
 
 	if isBuyTab and useModern then
 		if Atr_Main_Panel and Atr_Main_Panel:IsShown() then
