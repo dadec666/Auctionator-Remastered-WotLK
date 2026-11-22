@@ -69,6 +69,7 @@ Remastered\Models\Deals.lua
 Remastered\UI\Theme.lua
 Remastered\UI\Appearance.lua
 Remastered\Features\Deals.lua
+Remastered\Features\SellTerminal.lua
 Remastered\Models\TradingLogs.lua
 Remastered\Features\TradingLogs.lua
 Remastered\Data\ItemBase.lua
